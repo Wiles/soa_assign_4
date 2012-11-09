@@ -73,9 +73,8 @@ namespace FileStronghold
 
             try
             {
-                var uri = new Uri(this.StorageLocation);
-                var userStore = new Uri(uri, userName);
-                return this.FileService.GetDirectory(userStore.AbsolutePath);
+                var userStore = this.StorageLocation + "\\" + userName;
+                return this.FileService.GetDirectory(userStore);
             }
             catch
             {
