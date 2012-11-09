@@ -164,7 +164,40 @@ namespace StrongholdClient
         /// </param>
         private void btnNewFolder_Click(object sender, EventArgs e)
         {
+            
 
+            List<String> directories = new List<String>();
+            TreeNode node = treeDirectory.SelectedNode;
+            while (node != null)
+            {
+                directories.Add(node.Text);
+                node = node.Parent;
+            }
+
+            if (directories.Count == 0)
+            {
+                directories.Add(UserName);
+            }
+            directories.Reverse();
+            StringBuilder baseDir = new StringBuilder();
+            foreach(var dir in directories)
+            {
+                baseDir.Append(dir).Append("\\");
+            }
+            var dialog = new NewFolder();
+            dialog.Folder = baseDir.ToString();
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                String folder = dialog.Folder;
+                if (this.Client.NewFolder(UserName, folder))
+                {
+                    this.RefreshFileDirectory();
+                }
+                else
+                {
+                    MessageBox.Show("Error creating directory");
+                }
+            }
         }
 
         /// <summary>

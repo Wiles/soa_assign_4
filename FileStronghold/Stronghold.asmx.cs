@@ -56,6 +56,16 @@ namespace FileStronghold
             }
         }
 
+        [WebMethod]
+        public Boolean NewFolder(string username, string path)
+        {
+            if (!path.Split(new char[]{'\\'}, 2)[0].Equals(username))
+            {
+                return false;
+            }
+            return this.FileService.NewDirectory(this.StorageLocation + "\\" + path);
+        }
+
         /// <summary>
         /// Gets the user's directory listing.
         /// </summary>

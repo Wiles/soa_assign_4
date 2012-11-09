@@ -24,6 +24,22 @@ namespace FileStronghold
             return root;
         }
 
+        public Boolean NewDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(path);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         /// <summary>
         /// Builds the subdirectories.
         /// </summary>
