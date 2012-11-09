@@ -53,6 +53,11 @@ namespace FileStronghold
             return true;
         }
 
+        /// <summary>
+        /// Deletes the item.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
         public bool DeleteItem(string path)
         {
             try
