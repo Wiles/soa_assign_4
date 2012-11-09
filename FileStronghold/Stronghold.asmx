@@ -1,0 +1,1 @@
+﻿<%@ WebService Language="C#" CodeBehind="Stronghold.asmx.cs" Class="FileStronghold.Stronghold" %>
