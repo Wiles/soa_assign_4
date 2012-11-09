@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using StrongholdClient.FileStronghold;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace StrongholdClient
 {
@@ -209,7 +210,12 @@ namespace StrongholdClient
         /// </param>
         private void btnUpload_Click(object sender, EventArgs e)
         {
+            var dialog = new OpenFileDialog();
+            dialog.Title = "Select a file to upload...";
 
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+            }
         }
 
         /// <summary>

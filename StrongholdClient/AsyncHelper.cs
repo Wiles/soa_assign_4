@@ -1,8 +1,4 @@
-﻿/// AsyncHelper.cs
-/// Thomas Kempton 2012
-///
-
-namespace StrongholdClient
+﻿namespace StrongholdClient
 {
     using System;
     using System.ComponentModel;

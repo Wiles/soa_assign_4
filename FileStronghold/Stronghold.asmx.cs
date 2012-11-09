@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Services;
-using System.Configuration;
-using System.Collections.Specialized;
-using System.Web.Services.Protocols;
-using System.IO;
-
-namespace FileStronghold
+﻿namespace FileStronghold
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web;
+    using System.Web.Services;
+    using System.Configuration;
+    using System.Collections.Specialized;
+    using System.Web.Services.Protocols;
+    using System.IO;
+
     /// <summary>
     /// Web Service for managing a remote file store.
     /// </summary>
@@ -56,6 +56,15 @@ namespace FileStronghold
             }
         }
 
+        /// <summary>
+        /// Creates a new directory.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if the directory was created;
+        ///   otherwise, <c>false.</c>
+        /// </returns>
         [WebMethod]
         public Boolean NewFolder(string username, string path)
         {

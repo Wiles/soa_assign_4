@@ -1,16 +1,10 @@
-﻿/// TreeBuilder.cs
-/// Thomas Kempton 2012
-///
-
-namespace StrongholdClient
+﻿namespace StrongholdClient
 {
-    using System.IO;
-    using System.Text;
-    using System.Windows.Forms;
-    using System.Xml;
-    using StrongholdClient.FileStronghold;
     using System.Collections.Generic;
     using System.Drawing;
+    using System.Linq;
+    using System.Windows.Forms;
+    using StrongholdClient.FileStronghold;
 
     /// <summary>
     /// Helper class for building a tree view.
@@ -41,7 +35,7 @@ namespace StrongholdClient
             {
                 var n = node.Nodes.Add(dir.Name);
                 n.ForeColor = Color.Blue;
-                foreach (var child in dir.SubDirectories)
+                foreach (var child in dir.SubDirectories.OrderBy(d => d.Name))
                 {
                     // recursion!
                     AddTreeNode(n, child);

@@ -9,6 +9,11 @@ namespace FileStronghold
 {
     public class FileSystemService
     {
+        /// <summary>
+        /// Gets the directory structure.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>The directory structure.</returns>
         public DirectoryListing GetDirectory(string path)
         {
             if (!Directory.Exists(path))
@@ -24,6 +29,14 @@ namespace FileStronghold
             return root;
         }
 
+        /// <summary>
+        /// Creates a new directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if the directory was created;
+        ///   otherwise, <c>false.</c>
+        /// </returns>
         public Boolean NewDirectory(string path)
         {
             if (!Directory.Exists(path))
