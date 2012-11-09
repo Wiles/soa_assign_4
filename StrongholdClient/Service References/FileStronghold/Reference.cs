@@ -97,6 +97,10 @@ namespace StrongholdClient.FileStronghold {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/NewFolder", ReplyAction="*")]
         StrongholdClient.FileStronghold.NewFolderResponse NewFolder(StrongholdClient.FileStronghold.NewFolderRequest request);
         
+        // CODEGEN: Generating message contract since element name username from namespace http://tempuri.org/ is not marked nillable
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/DeleteItem", ReplyAction="*")]
+        StrongholdClient.FileStronghold.DeleteItemResponse DeleteItem(StrongholdClient.FileStronghold.DeleteItemRequest request);
+        
         // CODEGEN: Generating message contract since element name userName from namespace http://tempuri.org/ is not marked nillable
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GetDirectoryListing", ReplyAction="*")]
         StrongholdClient.FileStronghold.GetDirectoryListingResponse GetDirectoryListing(StrongholdClient.FileStronghold.GetDirectoryListingRequest request);
@@ -171,6 +175,78 @@ namespace StrongholdClient.FileStronghold {
         
         public NewFolderResponseBody(bool NewFolderResult) {
             this.NewFolderResult = NewFolderResult;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class DeleteItemRequest {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="DeleteItem", Namespace="http://tempuri.org/", Order=0)]
+        public StrongholdClient.FileStronghold.DeleteItemRequestBody Body;
+        
+        public DeleteItemRequest() {
+        }
+        
+        public DeleteItemRequest(StrongholdClient.FileStronghold.DeleteItemRequestBody Body) {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class DeleteItemRequestBody {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string username;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
+        public string path;
+        
+        public DeleteItemRequestBody() {
+        }
+        
+        public DeleteItemRequestBody(string username, string path) {
+            this.username = username;
+            this.path = path;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class DeleteItemResponse {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="DeleteItemResponse", Namespace="http://tempuri.org/", Order=0)]
+        public StrongholdClient.FileStronghold.DeleteItemResponseBody Body;
+        
+        public DeleteItemResponse() {
+        }
+        
+        public DeleteItemResponse(StrongholdClient.FileStronghold.DeleteItemResponseBody Body) {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class DeleteItemResponseBody {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Order=0)]
+        public bool DeleteItemResult;
+        
+        public DeleteItemResponseBody() {
+        }
+        
+        public DeleteItemResponseBody(bool DeleteItemResult) {
+            this.DeleteItemResult = DeleteItemResult;
         }
     }
     
@@ -281,6 +357,20 @@ namespace StrongholdClient.FileStronghold {
             inValue.Body.path = path;
             StrongholdClient.FileStronghold.NewFolderResponse retVal = ((StrongholdClient.FileStronghold.StrongholdSoap)(this)).NewFolder(inValue);
             return retVal.Body.NewFolderResult;
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        StrongholdClient.FileStronghold.DeleteItemResponse StrongholdClient.FileStronghold.StrongholdSoap.DeleteItem(StrongholdClient.FileStronghold.DeleteItemRequest request) {
+            return base.Channel.DeleteItem(request);
+        }
+        
+        public bool DeleteItem(string username, string path) {
+            StrongholdClient.FileStronghold.DeleteItemRequest inValue = new StrongholdClient.FileStronghold.DeleteItemRequest();
+            inValue.Body = new StrongholdClient.FileStronghold.DeleteItemRequestBody();
+            inValue.Body.username = username;
+            inValue.Body.path = path;
+            StrongholdClient.FileStronghold.DeleteItemResponse retVal = ((StrongholdClient.FileStronghold.StrongholdSoap)(this)).DeleteItem(inValue);
+            return retVal.Body.DeleteItemResult;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]

@@ -56,6 +56,12 @@
     <Compile Include="ClientForm.Designer.cs">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DeleteItemForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DeleteItemForm.Designer.cs">
+      <DependentUpon>DeleteItemForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewFolder.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,6 +84,9 @@
     </Compile>
     <EmbeddedResource Include="ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeleteItemForm.resx">
+      <DependentUpon>DeleteItemForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewFolder.resx">
       <DependentUpon>NewFolder.cs</DependentUpon>

@@ -38,7 +38,7 @@
             this.button1.Location = new System.Drawing.Point(116, 39);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
+            this.button1.TabIndex = 1;
             this.button1.Text = "Create";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -48,7 +48,7 @@
             this.button2.Location = new System.Drawing.Point(197, 39);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
+            this.button2.TabIndex = 2;
             this.button2.Text = "Cancel";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -58,7 +58,7 @@
             this.tb_folder.Location = new System.Drawing.Point(13, 13);
             this.tb_folder.Name = "tb_folder";
             this.tb_folder.Size = new System.Drawing.Size(259, 20);
-            this.tb_folder.TabIndex = 2;
+            this.tb_folder.TabIndex = 0;
             // 
             // NewFolder
             // 
@@ -68,6 +68,7 @@
             this.Controls.Add(this.tb_folder);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "NewFolder";
             this.Text = "New Folder";
             this.ResumeLayout(false);

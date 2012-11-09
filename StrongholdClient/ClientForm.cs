@@ -227,6 +227,40 @@ namespace StrongholdClient
         /// </param>
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            List<String> directories = new List<String>();
+            TreeNode node = treeDirectory.SelectedNode;
+            while (node != null)
+            {
+                directories.Add(node.Text);
+                node = node.Parent;
+            }
+
+            if (directories.Count == 0)
+            {
+                directories.Add(UserName);
+            }
+            directories.Reverse();
+            StringBuilder baseDir = new StringBuilder();
+            foreach (var dir in directories)
+            {
+                baseDir.Append(dir).Append("\\");
+            }
+            baseDir.Length -= 1;
+            var dialog = new DeleteItemForm();
+            dialog.Item = baseDir.ToString();
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                String folder = dialog.Item;
+
+                if (this.Client.DeleteItem(UserName, folder))
+                {
+                    this.RefreshFileDirectory();
+                }
+                else
+                {
+                    MessageBox.Show("Error deleting stuff");
+                }
+            }
 
         }
     }

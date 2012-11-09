@@ -75,6 +75,16 @@
             return this.FileService.NewDirectory(this.StorageLocation + "\\" + path);
         }
 
+        [WebMethod]
+        public Boolean DeleteItem(string username, string path)
+        {
+            if (!path.Split(new char[] { '\\' }, 2)[0].Equals(username))
+            {
+                return false;
+            }
+            return this.FileService.DeleteItem(this.StorageLocation + "\\" + path);
+        }
+
         /// <summary>
         /// Gets the user's directory listing.
         /// </summary>

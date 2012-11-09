@@ -53,6 +53,30 @@ namespace FileStronghold
             return true;
         }
 
+        public bool DeleteItem(string path)
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path);
+                }
+                else if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Builds the subdirectories.
         /// </summary>
