@@ -37,20 +37,16 @@ namespace FileStronghold
         ///   <c>true</c> if the directory was created;
         ///   otherwise, <c>false.</c>
         /// </returns>
-        public Boolean NewDirectory(string path)
+        public void NewDirectory(string path)
         {
             if (!Directory.Exists(path))
             {
-                try
-                {
-                    Directory.CreateDirectory(path);
-                }
-                catch
-                {
-                    return false;
-                }
+                Directory.CreateDirectory(path);
             }
-            return true;
+            else
+            {
+                throw new IOException("Path already exists");
+            }
         }
 
         /// <summary>
@@ -61,29 +57,20 @@ namespace FileStronghold
         ///   <c>true</c> if the directory was deleted;
         ///   otherwise, <c>false.</c>
         /// </returns>
-        public bool DeleteItem(string path)
+        public void DeleteItem(string path)
         {
-            try
+            if (Directory.Exists(path))
             {
-                if (Directory.Exists(path))
-                {
-                    Directory.Delete(path, true);
-                }
-                else if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-                else
-                {
-                    return false;
-                }
+                Directory.Delete(path, true);
             }
-            catch
+            else if (File.Exists(path))
             {
-                return false;
+                File.Delete(path);
             }
-
-            return true;
+            else
+            {
+                throw new IOException("Path does not exist.");
+            }
         }
 
         /// <summary>

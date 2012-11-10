@@ -109,15 +109,23 @@
         ///   otherwise, <c>false.</c>
         /// </returns>
         [WebMethod]
-        public Boolean NewFolder(string username, string path)
+        public void NewFolder(string username, string path)
         {
             if (!path.Split(new char[]{'\\'}, 2)[0].Equals(username))
             {
-                return false;
+                throw new SoapException(
+                    "Invalid username.",
+                    SoapException.ClientFaultCode);
             }
-
-            return this.FileService.NewDirectory(
+            try
+            {
+                this.FileService.NewDirectory(
                         this.StorageLocation + "\\" + path);
+            }
+            catch (Exception e)
+            {
+                throw new SoapException(e.Message, SoapException.ClientFaultCode);
+            }
         }
 
         /// <summary>
@@ -129,15 +137,23 @@
         ///   <c>true</c> if the directory was deleted;
         ///   otherwise, <c>false.</c></returns>
         [WebMethod]
-        public Boolean DeleteItem(string username, string path)
+        public void DeleteItem(string username, string path)
         {
             if (!path.Split(new char[] { '\\' }, 2)[0].Equals(username))
             {
-                return false;
+                throw new SoapException(
+                    "Invalid username.",
+                    SoapException.ClientFaultCode);
             }
-
-            return this.FileService.DeleteItem(
-                        this.StorageLocation + "\\" + path);
+            try
+            {
+                this.FileService.DeleteItem(
+                                        this.StorageLocation + "\\" + path);
+            }
+            catch (Exception e)
+            {
+                throw new SoapException(e.Message, SoapException.ClientFaultCode);
+            }            
         }
 
         /// <summary>

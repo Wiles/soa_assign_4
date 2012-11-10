@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using StrongholdClient.FileStronghold;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.ServiceModel;
 
 namespace StrongholdClient
 {
@@ -186,13 +187,13 @@ namespace StrongholdClient
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 String folder = dialog.Folder;
-                if (this.Client.NewFolder(UserName, folder))
-                {
+                try{
+                    this.Client.NewFolder(UserName, folder);
                     this.RefreshFileDirectory();
                 }
-                else
+                catch(Exception ex)
                 {
-                    MessageBox.Show("Error creating directory");
+                    MessageBox.Show("Error: " + ex.Message);
                 }
             }
         }
@@ -241,14 +242,14 @@ namespace StrongholdClient
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 var folder = dialog.Path;
-
-                if (this.Client.DeleteItem(UserName, folder))
+                try
                 {
+                    this.Client.DeleteItem(UserName, folder);
                     this.RefreshFileDirectory();
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Error deleting stuff");
+                    MessageBox.Show("Error: " + ex.Message);
                 }
             }
         }
