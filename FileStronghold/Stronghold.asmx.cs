@@ -58,13 +58,40 @@
         }
 
         /// <summary>
+        /// Gets the file download details.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="path">The path.</param>
+        /// <returns>The file download details.</returns>
+        [WebMethod]
+        public FileDownloadDetails DownloadDetails(
+                    string username,
+                    string path)
+        {
+            if (!path.Split(new char[] { '\\' }, 2)[0].Equals(username))
+            {
+                throw new SoapException(
+                    "Invalid username.",
+                    SoapException.ClientFaultCode);
+            }
+
+            var details = new FileDownloadDetails();
+            details.ChunkSize = this.FileService.ChunkSize;
+            details.NumberOfChunks =
+                    this.FileService.FileSizeInChunks(
+                            this.StorageLocation + "\\" + path);
+
+            return details;
+        }
+
+        /// <summary>
         /// Downloads the file.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="path">The path.</param>
         /// <returns>The file data.</returns>
         [WebMethod]
-        public byte[] DownloadFile(string username, string path)
+        public byte[] DownloadFile(string username, string path, int chunk)
         {
             if (!path.Split(new char[] { '\\' }, 2)[0].Equals(username))
             {
@@ -74,7 +101,8 @@
             }
 
             return this.FileService.ReadFile(
-                        this.StorageLocation + "\\" + path);
+                        this.StorageLocation + "\\" + path,
+                        chunk);
         }
 
         /// <summary>

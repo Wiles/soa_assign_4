@@ -15,6 +15,65 @@ namespace StrongholdClient.FileStronghold {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FileDownloadDetails", Namespace="http://tempuri.org/")]
+    [System.SerializableAttribute()]
+    public partial class FileDownloadDetails : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private int ChunkSizeField;
+        
+        private int NumberOfChunksField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public int ChunkSize {
+            get {
+                return this.ChunkSizeField;
+            }
+            set {
+                if ((this.ChunkSizeField.Equals(value) != true)) {
+                    this.ChunkSizeField = value;
+                    this.RaisePropertyChanged("ChunkSize");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public int NumberOfChunks {
+            get {
+                return this.NumberOfChunksField;
+            }
+            set {
+                if ((this.NumberOfChunksField.Equals(value) != true)) {
+                    this.NumberOfChunksField = value;
+                    this.RaisePropertyChanged("NumberOfChunks");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="DirectoryListing", Namespace="http://tempuri.org/")]
     [System.SerializableAttribute()]
     public partial class DirectoryListing : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -94,6 +153,10 @@ namespace StrongholdClient.FileStronghold {
     public interface StrongholdSoap {
         
         // CODEGEN: Generating message contract since element name username from namespace http://tempuri.org/ is not marked nillable
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/DownloadDetails", ReplyAction="*")]
+        StrongholdClient.FileStronghold.DownloadDetailsResponse DownloadDetails(StrongholdClient.FileStronghold.DownloadDetailsRequest request);
+        
+        // CODEGEN: Generating message contract since element name username from namespace http://tempuri.org/ is not marked nillable
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/DownloadFile", ReplyAction="*")]
         StrongholdClient.FileStronghold.DownloadFileResponse DownloadFile(StrongholdClient.FileStronghold.DownloadFileRequest request);
         
@@ -112,6 +175,78 @@ namespace StrongholdClient.FileStronghold {
         // CODEGEN: Generating message contract since element name userName from namespace http://tempuri.org/ is not marked nillable
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GetDirectoryListing", ReplyAction="*")]
         StrongholdClient.FileStronghold.GetDirectoryListingResponse GetDirectoryListing(StrongholdClient.FileStronghold.GetDirectoryListingRequest request);
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class DownloadDetailsRequest {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="DownloadDetails", Namespace="http://tempuri.org/", Order=0)]
+        public StrongholdClient.FileStronghold.DownloadDetailsRequestBody Body;
+        
+        public DownloadDetailsRequest() {
+        }
+        
+        public DownloadDetailsRequest(StrongholdClient.FileStronghold.DownloadDetailsRequestBody Body) {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class DownloadDetailsRequestBody {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public string username;
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
+        public string path;
+        
+        public DownloadDetailsRequestBody() {
+        }
+        
+        public DownloadDetailsRequestBody(string username, string path) {
+            this.username = username;
+            this.path = path;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.ServiceModel.MessageContractAttribute(IsWrapped=false)]
+    public partial class DownloadDetailsResponse {
+        
+        [System.ServiceModel.MessageBodyMemberAttribute(Name="DownloadDetailsResponse", Namespace="http://tempuri.org/", Order=0)]
+        public StrongholdClient.FileStronghold.DownloadDetailsResponseBody Body;
+        
+        public DownloadDetailsResponse() {
+        }
+        
+        public DownloadDetailsResponse(StrongholdClient.FileStronghold.DownloadDetailsResponseBody Body) {
+            this.Body = Body;
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+    [System.Runtime.Serialization.DataContractAttribute(Namespace="http://tempuri.org/")]
+    public partial class DownloadDetailsResponseBody {
+        
+        [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=0)]
+        public StrongholdClient.FileStronghold.FileDownloadDetails DownloadDetailsResult;
+        
+        public DownloadDetailsResponseBody() {
+        }
+        
+        public DownloadDetailsResponseBody(StrongholdClient.FileStronghold.FileDownloadDetails DownloadDetailsResult) {
+            this.DownloadDetailsResult = DownloadDetailsResult;
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -143,12 +278,16 @@ namespace StrongholdClient.FileStronghold {
         [System.Runtime.Serialization.DataMemberAttribute(EmitDefaultValue=false, Order=1)]
         public string path;
         
+        [System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+        public int chunk;
+        
         public DownloadFileRequestBody() {
         }
         
-        public DownloadFileRequestBody(string username, string path) {
+        public DownloadFileRequestBody(string username, string path, int chunk) {
             this.username = username;
             this.path = path;
+            this.chunk = chunk;
         }
     }
     
@@ -488,15 +627,30 @@ namespace StrongholdClient.FileStronghold {
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
+        StrongholdClient.FileStronghold.DownloadDetailsResponse StrongholdClient.FileStronghold.StrongholdSoap.DownloadDetails(StrongholdClient.FileStronghold.DownloadDetailsRequest request) {
+            return base.Channel.DownloadDetails(request);
+        }
+        
+        public StrongholdClient.FileStronghold.FileDownloadDetails DownloadDetails(string username, string path) {
+            StrongholdClient.FileStronghold.DownloadDetailsRequest inValue = new StrongholdClient.FileStronghold.DownloadDetailsRequest();
+            inValue.Body = new StrongholdClient.FileStronghold.DownloadDetailsRequestBody();
+            inValue.Body.username = username;
+            inValue.Body.path = path;
+            StrongholdClient.FileStronghold.DownloadDetailsResponse retVal = ((StrongholdClient.FileStronghold.StrongholdSoap)(this)).DownloadDetails(inValue);
+            return retVal.Body.DownloadDetailsResult;
+        }
+        
+        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         StrongholdClient.FileStronghold.DownloadFileResponse StrongholdClient.FileStronghold.StrongholdSoap.DownloadFile(StrongholdClient.FileStronghold.DownloadFileRequest request) {
             return base.Channel.DownloadFile(request);
         }
         
-        public byte[] DownloadFile(string username, string path) {
+        public byte[] DownloadFile(string username, string path, int chunk) {
             StrongholdClient.FileStronghold.DownloadFileRequest inValue = new StrongholdClient.FileStronghold.DownloadFileRequest();
             inValue.Body = new StrongholdClient.FileStronghold.DownloadFileRequestBody();
             inValue.Body.username = username;
             inValue.Body.path = path;
+            inValue.Body.chunk = chunk;
             StrongholdClient.FileStronghold.DownloadFileResponse retVal = ((StrongholdClient.FileStronghold.StrongholdSoap)(this)).DownloadFile(inValue);
             return retVal.Body.DownloadFileResult;
         }

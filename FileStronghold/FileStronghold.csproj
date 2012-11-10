@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DirectoryListing.cs" />
+    <Compile Include="FileDownloadDetails.cs" />
     <Compile Include="FileSystemService.cs" />
     <Compile Include="Stronghold.asmx.cs">
       <DependentUpon>Stronghold.asmx</DependentUpon>

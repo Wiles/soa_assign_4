@@ -10,6 +10,23 @@ namespace FileStronghold
     public class FileSystemService
     {
         /// <summary>
+        /// Initializes a new instance of the
+        /// <see cref="FileSystemService" /> class.
+        /// </summary>
+        public FileSystemService()
+        {
+            ChunkSize = 4096;
+        }
+
+        /// <summary>
+        /// Gets the size of the chunk.
+        /// </summary>
+        /// <value>
+        /// The size of the chunk.
+        /// </value>
+        public int ChunkSize { get; private set; }
+
+        /// <summary>
         /// Gets the directory structure.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -74,17 +91,46 @@ namespace FileStronghold
         }
 
         /// <summary>
+        /// Files the size in chunks.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public int FileSizeInChunks(string path)
+        {
+            double size = new FileInfo(path).Length;
+            double chunk = this.ChunkSize;
+            return (int)Math.Ceiling(size / chunk);
+        }
+
+        /// <summary>
         /// Reads the file.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        public byte[] ReadFile(string path)
+        public byte[] ReadFile(string path, int chunk)
         {
-            using (var stream = new FileStream(path, FileMode.Open))
+            var size = FileSizeInChunks(path);
+            int length;
+            if (chunk >= size)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            int fileLength = (int)new FileInfo(path).Length;
+
+            using (var stream = new FileStream(path, FileMode.OpenOrCreate))
             using (var reader = new BinaryReader(stream))
             {
-                var length = new FileInfo(path).Length;
-                return reader.ReadBytes((int)length);
+                byte[] buffer = null;
+
+                for (int i = 0; i <= chunk; i++)
+                {
+                    length = (i == size - 1) ?
+                                fileLength % this.ChunkSize : this.ChunkSize;
+                    buffer = reader.ReadBytes(length);
+                }
+
+                return buffer;
             }
         }
 
@@ -96,9 +142,13 @@ namespace FileStronghold
         /// <returns>The number of bytes written to file.</returns>
         public int WriteFile(string path, byte[] data)
         {
-            using (var stream = new FileStream(path, FileMode.OpenOrCreate))
+            using (var stream = new FileStream(
+                            path,
+                            FileMode.Append,
+                            FileAccess.Write))
+            using (var writer = new BinaryWriter(stream))
             {
-                stream.Write(data, 0, data.Length);
+                writer.Write(data);
             }
 
             return data.Length;
