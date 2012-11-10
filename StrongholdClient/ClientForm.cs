@@ -162,11 +162,28 @@ namespace StrongholdClient
 
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var data = this.Client.DownloadFile(this.UserName, remotePath);
-                var path = dialog.FileName;
-                using (var strm = new FileStream(path, FileMode.OpenOrCreate))
-                using (var writer = new BinaryWriter(strm))
+                DownloadFile(dialog.FileName, remotePath);
+            }
+        }
+
+        /// <summary>
+        /// Downloads the file.
+        /// </summary>
+        /// <param name="localPath">The local path.</param>
+        /// <param name="remotePath">The remote path.</param>
+        private void DownloadFile(string localPath, string remotePath)
+        {
+            var details = this.Client.DownloadDetails(
+                                        UserName,
+                                        remotePath);
+
+            using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
+            using (var writer = new BinaryWriter(strm))
+            {
+                for (int i = 0; i < details.NumberOfChunks; i++)
                 {
+                    var data =
+                        this.Client.DownloadFile(UserName, remotePath, i);
                     writer.Write(data);
                 }
             }
@@ -216,16 +233,34 @@ namespace StrongholdClient
                 var form = new UploadForm(this.GetPath(), file);
                 if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    using (var strm = new FileStream(localPath, FileMode.Open))
-                    using (var reader = new BinaryReader(strm))
-                    {
-                        var length = new FileInfo(localPath).Length;
-                        var buff = reader.ReadBytes((int)length);
-                        this.Client.UploadFile(this.UserName, form.Path, buff);
-                        this.RefreshFileDirectory();
-                    }
+                    UploadFile(localPath, form.Path);
                 }
             }
+        }
+
+        /// <summary>
+        /// Uploads the file.
+        /// </summary>
+        /// <param name="localPath">The local path.</param>
+        /// <param name="remotePath">The remote path.</param>
+        private void UploadFile(string localPath, string remotePath)
+        {
+            var length = new FileInfo(localPath).Length;
+            var chunk = 1024 * 16;
+            var count = (int)Math.Ceiling((double)length / (double)chunk);
+
+            using (var strm = new FileStream(localPath, FileMode.Open))
+            using (var reader = new BinaryReader(strm))
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    var size = i == (count - 1) ? length % chunk : chunk;
+                    var buff = reader.ReadBytes((int)size);
+                    this.Client.UploadFile(this.UserName, remotePath, buff);
+                }
+            }
+
+            this.RefreshFileDirectory();
         }
 
         /// <summary>

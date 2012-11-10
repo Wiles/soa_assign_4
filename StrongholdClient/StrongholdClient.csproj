@@ -126,6 +126,9 @@
     <None Include="Service References\FileStronghold\StrongholdClient.FileStronghold.DirectoryListing.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Include="Service References\FileStronghold\StrongholdClient.FileStronghold.FileDownloadDetails.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
