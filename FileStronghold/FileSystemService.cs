@@ -57,7 +57,10 @@ namespace FileStronghold
         /// Deletes the item.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <c>true</c> if the directory was deleted;
+        ///   otherwise, <c>false.</c>
+        /// </returns>
         public bool DeleteItem(string path)
         {
             try
@@ -79,6 +82,7 @@ namespace FileStronghold
             {
                 return false;
             }
+
             return true;
         }
 

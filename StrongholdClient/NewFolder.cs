@@ -11,19 +11,33 @@ namespace StrongholdClient
 {
     public partial class NewFolder : Form
     {
-        private String _BaseFolder;
-
-        public String Folder 
-        {
-            get { return _BaseFolder; }
-            set { _BaseFolder = value; tb_folder.Text = value; }
-        }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewFolder" /> class.
+        /// </summary>
         public NewFolder()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Gets or sets the folder.
+        /// </summary>
+        /// <value>
+        /// The folder.
+        /// </value>
+        public string Folder
+        {
+            get { return tb_folder.Text; }
+            set { tb_folder.Text = value; }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the button2 control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">
+        ///   The <see cref="EventArgs" /> instance containing the event data.
+        /// </param>
         private void button2_Click(object sender, EventArgs e)
         {
             this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -31,6 +45,13 @@ namespace StrongholdClient
 
         }
 
+        /// <summary>
+        /// Handles the Click event of the button1 control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">
+        ///   The <see cref="EventArgs" /> instance containing the event data.
+        /// </param>
         private void button1_Click(object sender, EventArgs e)
         {
             Folder = tb_folder.Text;

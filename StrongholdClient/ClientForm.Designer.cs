@@ -30,13 +30,13 @@
         {
             this.treeDirectory = new System.Windows.Forms.TreeView();
             this.grpDetails = new System.Windows.Forms.GroupBox();
+            this.btnNewFolder = new System.Windows.Forms.Button();
+            this.btnUpload = new System.Windows.Forms.Button();
             this.lblFileType = new System.Windows.Forms.Label();
             this.lblFileName = new System.Windows.Forms.Label();
             this.btnDownload = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
-            this.btnUpload = new System.Windows.Forms.Button();
-            this.btnNewFolder = new System.Windows.Forms.Button();
             this.grpDetails.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -62,6 +62,26 @@
             this.grpDetails.TabIndex = 1;
             this.grpDetails.TabStop = false;
             this.grpDetails.Text = "Details";
+            // 
+            // btnNewFolder
+            // 
+            this.btnNewFolder.Location = new System.Drawing.Point(125, 209);
+            this.btnNewFolder.Name = "btnNewFolder";
+            this.btnNewFolder.Size = new System.Drawing.Size(110, 25);
+            this.btnNewFolder.TabIndex = 5;
+            this.btnNewFolder.Text = "New Folder...";
+            this.btnNewFolder.UseVisualStyleBackColor = true;
+            this.btnNewFolder.Click += new System.EventHandler(this.btnNewFolder_Click);
+            // 
+            // btnUpload
+            // 
+            this.btnUpload.Location = new System.Drawing.Point(9, 240);
+            this.btnUpload.Name = "btnUpload";
+            this.btnUpload.Size = new System.Drawing.Size(110, 25);
+            this.btnUpload.TabIndex = 3;
+            this.btnUpload.Text = "Upload...";
+            this.btnUpload.UseVisualStyleBackColor = true;
+            this.btnUpload.Click += new System.EventHandler(this.btnUpload_Click);
             // 
             // lblFileType
             // 
@@ -108,26 +128,6 @@
             this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
-            // btnUpload
-            // 
-            this.btnUpload.Location = new System.Drawing.Point(9, 240);
-            this.btnUpload.Name = "btnUpload";
-            this.btnUpload.Size = new System.Drawing.Size(110, 25);
-            this.btnUpload.TabIndex = 3;
-            this.btnUpload.Text = "Upload...";
-            this.btnUpload.UseVisualStyleBackColor = true;
-            this.btnUpload.Click += new System.EventHandler(this.btnUpload_Click);
-            // 
-            // btnNewFolder
-            // 
-            this.btnNewFolder.Location = new System.Drawing.Point(125, 209);
-            this.btnNewFolder.Name = "btnNewFolder";
-            this.btnNewFolder.Size = new System.Drawing.Size(110, 25);
-            this.btnNewFolder.TabIndex = 5;
-            this.btnNewFolder.Text = "New Folder...";
-            this.btnNewFolder.UseVisualStyleBackColor = true;
-            this.btnNewFolder.Click += new System.EventHandler(this.btnNewFolder_Click);
-            // 
             // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -136,6 +136,7 @@
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.grpDetails);
             this.Controls.Add(this.treeDirectory);
+            this.MaximizeBox = false;
             this.Name = "ClientForm";
             this.Text = "Stronghold Client";
             this.Load += new System.EventHandler(this.Form1_Load);

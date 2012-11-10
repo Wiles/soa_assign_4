@@ -35,7 +35,8 @@
             {
                 var n = node.Nodes.Add(dir.Name);
                 n.ForeColor = Color.Blue;
-                foreach (var child in dir.SubDirectories.OrderBy(d => d.Name))
+                foreach (var child in dir.SubDirectories.OrderBy(d => d.Name)
+                                    .OrderByDescending(d => d.IsDirectory))
                 {
                     // recursion!
                     AddTreeNode(n, child);

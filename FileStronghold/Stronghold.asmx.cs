@@ -16,7 +16,8 @@
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
+    // To allow this Web Service to be called from script,
+    // using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
     public class Stronghold : WebService
     {
@@ -72,9 +73,18 @@
             {
                 return false;
             }
+
             return this.FileService.NewDirectory(this.StorageLocation + "\\" + path);
         }
 
+        /// <summary>
+        /// Deletes the item.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="path">The path.</param>
+        /// <returns>
+        ///   <c>true</c> if the directory was deleted;
+        ///   otherwise, <c>false.</c></returns>
         [WebMethod]
         public Boolean DeleteItem(string username, string path)
         {
@@ -82,6 +92,7 @@
             {
                 return false;
             }
+
             return this.FileService.DeleteItem(this.StorageLocation + "\\" + path);
         }
 

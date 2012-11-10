@@ -165,28 +165,8 @@ namespace StrongholdClient
         /// </param>
         private void btnNewFolder_Click(object sender, EventArgs e)
         {
-            
-
-            List<String> directories = new List<String>();
-            TreeNode node = treeDirectory.SelectedNode;
-            while (node != null)
-            {
-                directories.Add(node.Text);
-                node = node.Parent;
-            }
-
-            if (directories.Count == 0)
-            {
-                directories.Add(UserName);
-            }
-            directories.Reverse();
-            StringBuilder baseDir = new StringBuilder();
-            foreach(var dir in directories)
-            {
-                baseDir.Append(dir).Append("\\");
-            }
             var dialog = new NewFolder();
-            dialog.Folder = baseDir.ToString();
+            dialog.Folder = this.GetPath();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 String folder = dialog.Folder;
@@ -215,6 +195,13 @@ namespace StrongholdClient
 
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
+                var localPath = dialog.FileName;
+                var file = Path.GetFileName(localPath);
+                var form = new UploadForm(this.GetPath(), file);
+                if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    // upload the file, some how...
+                }
             }
         }
 
@@ -226,6 +213,28 @@ namespace StrongholdClient
         ///   The <see cref="EventArgs" /> instance containing the event data.
         /// </param>
         private void btnDelete_Click(object sender, EventArgs e)
+        {
+            var dialog = new DeleteItemForm(this.GetPath());
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var folder = dialog.Path;
+
+                if (this.Client.DeleteItem(UserName, folder))
+                {
+                    this.RefreshFileDirectory();
+                }
+                else
+                {
+                    MessageBox.Show("Error deleting stuff");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the currently selected path.
+        /// </summary>
+        /// <returns>The path.</returns>
+        private string GetPath()
         {
             List<String> directories = new List<String>();
             TreeNode node = treeDirectory.SelectedNode;
@@ -239,29 +248,16 @@ namespace StrongholdClient
             {
                 directories.Add(UserName);
             }
+
             directories.Reverse();
             StringBuilder baseDir = new StringBuilder();
             foreach (var dir in directories)
             {
                 baseDir.Append(dir).Append("\\");
             }
+
             baseDir.Length -= 1;
-            var dialog = new DeleteItemForm();
-            dialog.Item = baseDir.ToString();
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                String folder = dialog.Item;
-
-                if (this.Client.DeleteItem(UserName, folder))
-                {
-                    this.RefreshFileDirectory();
-                }
-                else
-                {
-                    MessageBox.Show("Error deleting stuff");
-                }
-            }
-
+            return baseDir.ToString();
         }
     }
 }
