@@ -20,7 +20,14 @@ namespace StrongholdClient
         {
             InitializeComponent();
             lblText.Text = string.Format("Upload {0} to...", file);
-            this.Path = path;
+            if (path.EndsWith("\\"))
+            {
+                this.Path = path + file;
+            }
+            else
+            {
+                this.Path = path + "\\" + file;
+            }
         }
 
         /// <summary>
@@ -39,6 +46,32 @@ namespace StrongholdClient
             {
                 txtPath.Text = value;
             }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the button1 control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">
+        ///   The <see cref="EventArgs" /> instance containing the event data.
+        /// </param>
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.Close();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the button2 control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">
+        ///   The <see cref="EventArgs" /> instance containing the event data.
+        /// </param>
+        private void button2_Click(object sender, EventArgs e)
+        {
+            DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.Close();
         }
     }
 }

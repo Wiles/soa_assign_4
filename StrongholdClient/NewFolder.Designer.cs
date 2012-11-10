@@ -62,6 +62,7 @@
             this.tb_folder.Name = "tb_folder";
             this.tb_folder.Size = new System.Drawing.Size(344, 22);
             this.tb_folder.TabIndex = 0;
+            this.tb_folder.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tb_folder_KeyDown);
             // 
             // NewFolder
             // 

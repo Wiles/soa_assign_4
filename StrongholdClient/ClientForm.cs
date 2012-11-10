@@ -153,7 +153,23 @@ namespace StrongholdClient
         /// </param>
         private void btnDownload_Click(object sender, EventArgs e)
         {
+            var dialog = new SaveFileDialog();
+            dialog.Title = "Select a download target";
+            var remotePath = this.GetPath();
+            var fileName = Path.GetFileName(remotePath);
+            dialog.OverwritePrompt = true;
+            dialog.FileName = fileName;
 
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var data = this.Client.DownloadFile(this.UserName, remotePath);
+                var path = dialog.FileName;
+                using (var strm = new FileStream(path, FileMode.OpenOrCreate))
+                using (var writer = new BinaryWriter(strm))
+                {
+                    writer.Write(data);
+                }
+            }
         }
 
         /// <summary>
@@ -200,7 +216,14 @@ namespace StrongholdClient
                 var form = new UploadForm(this.GetPath(), file);
                 if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    // upload the file, some how...
+                    using (var strm = new FileStream(localPath, FileMode.Open))
+                    using (var reader = new BinaryReader(strm))
+                    {
+                        var length = new FileInfo(localPath).Length;
+                        var buff = reader.ReadBytes((int)length);
+                        this.Client.UploadFile(this.UserName, form.Path, buff);
+                        this.RefreshFileDirectory();
+                    }
                 }
             }
         }

@@ -58,6 +58,48 @@
         }
 
         /// <summary>
+        /// Downloads the file.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="path">The path.</param>
+        /// <returns>The file data.</returns>
+        [WebMethod]
+        public byte[] DownloadFile(string username, string path)
+        {
+            if (!path.Split(new char[] { '\\' }, 2)[0].Equals(username))
+            {
+                throw new SoapException(
+                    "Invalid username.",
+                    SoapException.ClientFaultCode);
+            }
+
+            return this.FileService.ReadFile(
+                        this.StorageLocation + "\\" + path);
+        }
+
+        /// <summary>
+        /// Uploads the file.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="path">The path.</param>
+        /// <param name="data">The data.</param>
+        /// <returns>The number of bytes written to storage.</returns>
+        [WebMethod]
+        public int UploadFile(string username, string path, byte[] data)
+        {
+            if (!path.Split(new char[] { '\\' }, 2)[0].Equals(username))
+            {
+                throw new SoapException(
+                    "Invalid username.",
+                    SoapException.ClientFaultCode);
+            }
+
+            return this.FileService.WriteFile(
+                        this.StorageLocation + "\\" + path,
+                        data);
+        }
+
+        /// <summary>
         /// Creates a new directory.
         /// </summary>
         /// <param name="username">The username.</param>
@@ -74,7 +116,8 @@
                 return false;
             }
 
-            return this.FileService.NewDirectory(this.StorageLocation + "\\" + path);
+            return this.FileService.NewDirectory(
+                        this.StorageLocation + "\\" + path);
         }
 
         /// <summary>
@@ -93,7 +136,8 @@
                 return false;
             }
 
-            return this.FileService.DeleteItem(this.StorageLocation + "\\" + path);
+            return this.FileService.DeleteItem(
+                        this.StorageLocation + "\\" + path);
         }
 
         /// <summary>

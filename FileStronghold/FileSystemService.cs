@@ -87,6 +87,37 @@ namespace FileStronghold
         }
 
         /// <summary>
+        /// Reads the file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public byte[] ReadFile(string path)
+        {
+            using (var stream = new FileStream(path, FileMode.Open))
+            using (var reader = new BinaryReader(stream))
+            {
+                var length = new FileInfo(path).Length;
+                return reader.ReadBytes((int)length);
+            }
+        }
+
+        /// <summary>
+        /// Writes the file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="data">The data.</param>
+        /// <returns>The number of bytes written to file.</returns>
+        public int WriteFile(string path, byte[] data)
+        {
+            using (var stream = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                stream.Write(data, 0, data.Length);
+            }
+
+            return data.Length;
+        }
+
+        /// <summary>
         /// Builds the subdirectories.
         /// </summary>
         /// <param name="path">The path.</param>
