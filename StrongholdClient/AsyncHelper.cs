@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel;
     using System.Windows.Forms;
+    using System.Drawing;
 
     /// <summary>
     /// Extension methods to ease asynchronous forms.
@@ -37,16 +38,6 @@
             var bg = new BackgroundWorker();
             bg.DoWork += new DoWorkEventHandler((source, evt) => action());
             bg.RunWorkerAsync();
-        }
-
-        /// <summary>
-        /// Sets the in middle.
-        /// </summary>
-        /// <param name="parent">The parent.</param>
-        /// <param name="child">The child.</param>
-        public static void SetInMiddle(this Form parent, Form child)
-        {
-            var coff = child.Width / 2;
         }
     }
 }

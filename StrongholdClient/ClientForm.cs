@@ -280,6 +280,7 @@ namespace StrongholdClient
             }
             finally
             {
+                progress.Close();
                 this.RefreshFileDirectory();
             }
         }
