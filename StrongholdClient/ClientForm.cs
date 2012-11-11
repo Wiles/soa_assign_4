@@ -262,7 +262,7 @@ namespace StrongholdClient
             try
             {
                 var length = new FileInfo(localPath).Length;
-                var chunk = 1024 * 512;
+                var chunk = 1024 * 1024 * 4;
                 var count = (int)Math.Ceiling((double)length / (double)chunk);
                 this.InvokeAsync(() => progress.ShowDialog());
 
