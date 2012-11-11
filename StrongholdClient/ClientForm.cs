@@ -185,6 +185,7 @@ namespace StrongholdClient
                 var details = this.Client.DownloadDetails(
                                             UserName,
                                             remotePath);
+                progress.Total = details.NumberOfChunks * details.ChunkSize;
                 this.InvokeAsync(() => progress.ShowDialog());
 
                 using (var strm = new FileStream(
@@ -197,7 +198,7 @@ namespace StrongholdClient
                         var data =
                             this.Client.DownloadFile(UserName, remotePath, i);
                         writer.Write(data);
-                        progress.SetValue((int)(((double)i / (double)details.NumberOfChunks) * 100));
+                        progress.IncrementValue(details.ChunkSize);
                     }
                 }
             }
@@ -267,6 +268,8 @@ namespace StrongholdClient
             try
             {
                 var length = new FileInfo(localPath).Length;
+
+                progress.Total = length;
                 var chunk = MIN_UPLOAD_CHUNK;
                 try
                 {
@@ -294,7 +297,7 @@ namespace StrongholdClient
                         var size = i == (count - 1) ? length % chunk : chunk;
                         var buff = reader.ReadBytes((int)size);
                         this.Client.UploadFile(this.UserName, remotePath, buff);
-                        progress.SetValue((int)(((double)i / (double)count) * 100));
+                        progress.IncrementValue(chunk);
                     }
                 }
             }
