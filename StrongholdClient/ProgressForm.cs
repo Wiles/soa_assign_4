@@ -21,6 +21,7 @@ namespace StrongholdClient
             InitializeComponent();
             this.Title = title;
             this.Text = string.Format("{0} 0%", title);
+            this.Height = 80;
         }
 
         /// <summary>

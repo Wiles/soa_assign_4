@@ -203,7 +203,7 @@ namespace StrongholdClient
             }
             finally
             {
-                progress.Close();
+                progress.InvokeOnUI(() => progress.Close());
             }
         }
 
@@ -300,7 +300,7 @@ namespace StrongholdClient
             }
             finally
             {
-                progress.Close();
+                progress.InvokeOnUI(() => progress.Close());
                 this.RefreshFileDirectory();
             }
         }
