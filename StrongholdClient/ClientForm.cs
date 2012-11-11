@@ -174,19 +174,31 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void DownloadFile(string localPath, string remotePath)
         {
-            var details = this.Client.DownloadDetails(
-                                        UserName,
-                                        remotePath);
-
-            using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
-            using (var writer = new BinaryWriter(strm))
+            ProgressForm progress = new ProgressForm("Downloading...");
+            try
             {
-                for (int i = 0; i < details.NumberOfChunks; i++)
+                var details = this.Client.DownloadDetails(
+                                            UserName,
+                                            remotePath);
+                this.InvokeAsync(() => progress.ShowDialog());
+
+                using (var strm = new FileStream(
+                            localPath,
+                            FileMode.OpenOrCreate))
+                using (var writer = new BinaryWriter(strm))
                 {
-                    var data =
-                        this.Client.DownloadFile(UserName, remotePath, i);
-                    writer.Write(data);
+                    for (int i = 0; i < details.NumberOfChunks; i++)
+                    {
+                        var data =
+                            this.Client.DownloadFile(UserName, remotePath, i);
+                        writer.Write(data);
+                        progress.SetValue((int)(((double)i / (double)details.NumberOfChunks) * 100));
+                    }
                 }
+            }
+            finally
+            {
+                progress.Close();
             }
         }
 
@@ -246,22 +258,30 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void UploadFile(string localPath, string remotePath)
         {
-            var length = new FileInfo(localPath).Length;
-            var chunk = 1024 * 512;
-            var count = (int)Math.Ceiling((double)length / (double)chunk);
-
-            using (var strm = new FileStream(localPath, FileMode.Open))
-            using (var reader = new BinaryReader(strm))
+            ProgressForm progress = new ProgressForm("Uploading...");
+            try
             {
-                for (int i = 0; i < count; i++)
+                var length = new FileInfo(localPath).Length;
+                var chunk = 1024 * 512;
+                var count = (int)Math.Ceiling((double)length / (double)chunk);
+                this.InvokeAsync(() => progress.ShowDialog());
+
+                using (var strm = new FileStream(localPath, FileMode.Open))
+                using (var reader = new BinaryReader(strm))
                 {
-                    var size = i == (count - 1) ? length % chunk : chunk;
-                    var buff = reader.ReadBytes((int)size);
-                    this.Client.UploadFile(this.UserName, remotePath, buff);
+                    for (int i = 0; i < count; i++)
+                    {
+                        var size = i == (count - 1) ? length % chunk : chunk;
+                        var buff = reader.ReadBytes((int)size);
+                        this.Client.UploadFile(this.UserName, remotePath, buff);
+                        progress.SetValue((int)(((double)i / (double)count) * 100));
+                    }
                 }
             }
-
-            this.RefreshFileDirectory();
+            finally
+            {
+                this.RefreshFileDirectory();
+            }
         }
 
         /// <summary>
