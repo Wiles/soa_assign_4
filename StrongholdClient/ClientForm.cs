@@ -15,6 +15,11 @@ namespace StrongholdClient
 {
     public partial class ClientForm : Form
     {
+
+        private static int MIN_UPLOAD_CHUNK = 1024 * 1024;
+        private static int MAX_UPLOAD_CHUNK = 1024 * 1024 * 8;
+        private static int UPLOAD_HEADER_SIZE = 1024 * 1024 * 3;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientForm" /> class.
         /// </summary>
@@ -247,7 +252,23 @@ namespace StrongholdClient
         private void UploadFile(string localPath, string remotePath)
         {
             var length = new FileInfo(localPath).Length;
-            var chunk = 1024 * 1024 * 4;
+            var chunk = MIN_UPLOAD_CHUNK;
+            try
+            {
+                chunk = this.Client.GetMaxRequestLength() - UPLOAD_HEADER_SIZE;
+            }
+            finally
+            {
+                if (chunk < MIN_UPLOAD_CHUNK)
+                {
+                    chunk = MIN_UPLOAD_CHUNK;
+                }
+                else if (chunk > MAX_UPLOAD_CHUNK)
+                {
+                    chunk = MAX_UPLOAD_CHUNK;
+                }
+            }
+
             
             var count = (int)Math.Ceiling((double)length / (double)chunk);
 

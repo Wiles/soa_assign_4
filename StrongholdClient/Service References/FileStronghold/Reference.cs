@@ -175,6 +175,9 @@ namespace StrongholdClient.FileStronghold {
         // CODEGEN: Generating message contract since element name userName from namespace http://tempuri.org/ is not marked nillable
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GetDirectoryListing", ReplyAction="*")]
         StrongholdClient.FileStronghold.GetDirectoryListingResponse GetDirectoryListing(StrongholdClient.FileStronghold.GetDirectoryListingRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/GetMaxRequestLength", ReplyAction="*")]
+        int GetMaxRequestLength();
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -707,6 +710,10 @@ namespace StrongholdClient.FileStronghold {
             inValue.Body.userName = userName;
             StrongholdClient.FileStronghold.GetDirectoryListingResponse retVal = ((StrongholdClient.FileStronghold.StrongholdSoap)(this)).GetDirectoryListing(inValue);
             return retVal.Body.GetDirectoryListingResult;
+        }
+        
+        public int GetMaxRequestLength() {
+            return base.Channel.GetMaxRequestLength();
         }
     }
 }

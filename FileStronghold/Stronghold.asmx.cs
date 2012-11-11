@@ -9,6 +9,7 @@
     using System.Collections.Specialized;
     using System.Web.Services.Protocols;
     using System.IO;
+    using System.Web.Configuration;
 
     /// <summary>
     /// Web Service for managing a remote file store.
@@ -210,6 +211,19 @@
                     "Unhandled Server Exception Occured.",
                     SoapException.ServerFaultCode);
             }
+        }
+
+        /// <summary>
+        /// Gets the length of the max request.
+        /// </summary>
+        /// <returns>Max request length</returns>
+        [WebMethod]
+        public int GetMaxRequestLength()
+        {
+            Configuration config = WebConfigurationManager.OpenWebConfiguration("~");
+            HttpRuntimeSection section = config.GetSection("system.web/httpRuntime") as HttpRuntimeSection;
+            
+            return section.MaxRequestLength;
         }
     }
 }
