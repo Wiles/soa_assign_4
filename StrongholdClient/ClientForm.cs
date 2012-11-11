@@ -203,7 +203,7 @@ namespace StrongholdClient
             }
             finally
             {
-                progress.InvokeOnUI(() => progress.Close());
+                progress.InvokeOnUI(progress.Close);
             }
         }
 
@@ -268,21 +268,21 @@ namespace StrongholdClient
             {
                 var length = new FileInfo(localPath).Length;
                 var chunk = MIN_UPLOAD_CHUNK;
-				try
-				{
-					chunk = this.Client.GetMaxRequestLength() - UPLOAD_HEADER_SIZE;
-				}
-				finally
-				{
-					if (chunk < MIN_UPLOAD_CHUNK)
-					{
-						chunk = MIN_UPLOAD_CHUNK;
-					}
-					else if (chunk > MAX_UPLOAD_CHUNK)
-					{
-						chunk = MAX_UPLOAD_CHUNK;
-					}
-				}
+                try
+                {
+                    chunk = this.Client.GetMaxRequestLength() - UPLOAD_HEADER_SIZE;
+                }
+                finally
+                {
+                    if (chunk < MIN_UPLOAD_CHUNK)
+                    {
+                        chunk = MIN_UPLOAD_CHUNK;
+                    }
+                    else if (chunk > MAX_UPLOAD_CHUNK)
+                    {
+                        chunk = MAX_UPLOAD_CHUNK;
+                    }
+                }
                 var count = (int)Math.Ceiling((double)length / (double)chunk);
                 this.InvokeAsync(() => progress.ShowDialog());
 
@@ -300,7 +300,7 @@ namespace StrongholdClient
             }
             finally
             {
-                progress.InvokeOnUI(() => progress.Close());
+                progress.InvokeOnUI(progress.Close);
                 this.RefreshFileDirectory();
             }
         }
