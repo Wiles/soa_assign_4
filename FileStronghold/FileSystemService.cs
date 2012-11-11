@@ -15,7 +15,7 @@ namespace FileStronghold
         /// </summary>
         public FileSystemService()
         {
-            ChunkSize = 1024 * 8;
+            ChunkSize = 1024 * 1024 * 8;
         }
 
         /// <summary>
