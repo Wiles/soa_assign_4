@@ -30,6 +30,7 @@
         {
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.tb_progress = new System.Windows.Forms.Label();
+            this.tb_time_estimate = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // progressBar1
@@ -46,15 +47,25 @@
             this.tb_progress.Name = "tb_progress";
             this.tb_progress.Size = new System.Drawing.Size(223, 13);
             this.tb_progress.TabIndex = 1;
-            this.tb_progress.Text = "label1";
+            this.tb_progress.Text = "### of #####";
             this.tb_progress.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // tb_time_estimate
+            // 
+            this.tb_time_estimate.Location = new System.Drawing.Point(8, 45);
+            this.tb_time_estimate.Name = "tb_time_estimate";
+            this.tb_time_estimate.Size = new System.Drawing.Size(227, 15);
+            this.tb_time_estimate.TabIndex = 2;
+            this.tb_time_estimate.Text = "Estimated time remaining";
+            this.tb_time_estimate.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // ProgressForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(246, 61);
+            this.ClientSize = new System.Drawing.Size(246, 96);
             this.ControlBox = false;
+            this.Controls.Add(this.tb_time_estimate);
             this.Controls.Add(this.tb_progress);
             this.Controls.Add(this.progressBar1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -73,5 +84,6 @@
 
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label tb_progress;
+        private System.Windows.Forms.Label tb_time_estimate;
     }
 }
