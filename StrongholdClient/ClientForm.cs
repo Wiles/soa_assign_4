@@ -247,7 +247,7 @@ namespace StrongholdClient
         private void UploadFile(string localPath, string remotePath)
         {
             var length = new FileInfo(localPath).Length;
-            var chunk = 1024 * 16;
+            var chunk = 1024 * 512;
             var count = (int)Math.Ceiling((double)length / (double)chunk);
 
             using (var strm = new FileStream(localPath, FileMode.Open))
