@@ -185,7 +185,7 @@ namespace StrongholdClient
                 var details = this.Client.DownloadDetails(
                                             UserName,
                                             remotePath);
-                progress.Total = details.NumberOfChunks * details.ChunkSize;
+                progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
                 this.InvokeAsync(() => progress.ShowDialog());
 
                 using (var strm = new FileStream(

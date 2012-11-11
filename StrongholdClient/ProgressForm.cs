@@ -61,7 +61,7 @@ namespace StrongholdClient
             this.Progress += value;
             
             updateEvents.Enqueue(new KeyValuePair<int, double>(Environment.TickCount, value));
-            if(updateEvents.Count > 50)
+            if(updateEvents.Count > 250)
             {
                 updateEvents.Dequeue();
             }
