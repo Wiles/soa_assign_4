@@ -49,6 +49,7 @@ namespace StrongholdClient
             {
                 this.progressBar1.Value = (int)((Progress/Total) * 100.0);
                 this.Text = string.Format("{0} {1}%", this.Title, value);
+                tb_progress.Text = string.Format("{0:n0} of {1:n0}", Progress, Total);
             });
         }
 
@@ -60,6 +61,7 @@ namespace StrongholdClient
                 int progress = (int)((Progress / Total) * 100.0);
                 this.progressBar1.Value = progress;
                 this.Text = string.Format("{0} {1}%", this.Title, progress);
+                tb_progress.Text = string.Format("{0:n0} of {1:n0}", Progress, Total);
             });
         }
     }
