@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using StrongholdClient.FileStronghold;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.ServiceModel;
 
 namespace StrongholdClient
 {
@@ -287,6 +282,12 @@ namespace StrongholdClient
                     }
                 }
                 var count = (int)Math.Ceiling((double)length / (double)chunk);
+
+                if (length < chunk)
+                {
+                    chunk = (int)length;
+                }
+
                 this.InvokeAsync(() => progress.ShowDialog());
 
                 using (var strm = new FileStream(localPath, FileMode.Open))
