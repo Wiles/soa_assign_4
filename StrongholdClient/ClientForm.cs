@@ -296,7 +296,11 @@ namespace StrongholdClient
                     {
                         var size = i == (count - 1) ? length % chunk : chunk;
                         var buff = reader.ReadBytes((int)size);
-                        this.Client.UploadFile(this.UserName, remotePath, buff);
+                        this.Client.UploadFile(
+                                    this.UserName,
+                                    remotePath,
+                                    buff,
+                                    i > 0);
                         progress.IncrementValue(chunk);
                     }
                 }

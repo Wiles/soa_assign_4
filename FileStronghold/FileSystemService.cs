@@ -140,8 +140,16 @@ namespace FileStronghold
         /// <param name="path">The path.</param>
         /// <param name="data">The data.</param>
         /// <returns>The number of bytes written to file.</returns>
-        public int WriteFile(string path, byte[] data)
+        public int WriteFile(string path, byte[] data, bool append)
         {
+            if (!append)
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+
             using (var stream = new FileStream(
                             path,
                             FileMode.Append,

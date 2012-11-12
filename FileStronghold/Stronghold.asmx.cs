@@ -1,15 +1,11 @@
 ﻿namespace FileStronghold
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Web;
-    using System.Web.Services;
-    using System.Configuration;
     using System.Collections.Specialized;
-    using System.Web.Services.Protocols;
-    using System.IO;
+    using System.Configuration;
     using System.Web.Configuration;
+    using System.Web.Services;
+    using System.Web.Services.Protocols;
 
     /// <summary>
     /// Web Service for managing a remote file store.
@@ -114,7 +110,7 @@
         /// <param name="data">The data.</param>
         /// <returns>The number of bytes written to storage.</returns>
         [WebMethod]
-        public int UploadFile(string username, string path, byte[] data)
+        public int UploadFile(string username, string path, byte[] data, bool append)
         {
             if (!path.Split(new char[] { '\\' }, 2)[0].Equals(username))
             {
@@ -125,7 +121,8 @@
 
             return this.FileService.WriteFile(
                         this.StorageLocation + "\\" + path,
-                        data);
+                        data,
+                        append);
         }
 
         /// <summary>
@@ -133,10 +130,7 @@
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="path">The path.</param>
-        /// <returns>
-        ///   <c>true</c> if the directory was created;
-        ///   otherwise, <c>false.</c>
-        /// </returns>
+        /// <param name="append">if set to <c>true</c> [append].</param>
         [WebMethod]
         public void NewFolder(string username, string path)
         {
