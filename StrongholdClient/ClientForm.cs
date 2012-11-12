@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using StrongholdClient.FileStronghold;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.ServiceModel;
 using System.Threading;
+using StrongholdClient.FileStronghold;
 
 namespace StrongholdClient
 {
@@ -300,6 +297,7 @@ namespace StrongholdClient
                     }
                 }
                 var count = (int)Math.Ceiling((double)length / (double)chunk);
+
                 this.InvokeAsync(() => {
                     if (dialogMutex.WaitOne())
                     {
@@ -307,6 +305,13 @@ namespace StrongholdClient
                         dialogMutex.ReleaseMutex();
                     }
                 });
+
+                if (length < chunk)
+                {
+                    chunk = (int)length;
+                }
+
+                this.InvokeAsync(() => progress.ShowDialog());
 
                 using (var strm = new FileStream(localPath, FileMode.Open))
                 using (var reader = new BinaryReader(strm))
