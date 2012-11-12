@@ -10,6 +10,7 @@ using StrongholdClient.FileStronghold;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.ServiceModel;
+using System.Threading;
 
 namespace StrongholdClient
 {
@@ -179,6 +180,7 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void DownloadFile(string localPath, string remotePath)
         {
+            var dialogMutex = new Mutex();
             ProgressForm progress = new ProgressForm("Downloading...");
             try
             {
@@ -186,7 +188,13 @@ namespace StrongholdClient
                                             UserName,
                                             remotePath);
                 progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
-                this.InvokeAsync(() => progress.ShowDialog());
+                this.InvokeAsync(() => {
+                    if (dialogMutex.WaitOne())
+                    {
+                        progress.ShowDialog();
+                        dialogMutex.ReleaseMutex();
+                    }
+                });
 
                 using (var strm = new FileStream(
                             localPath,
@@ -204,7 +212,11 @@ namespace StrongholdClient
             }
             finally
             {
-                progress.InvokeOnUI(progress.Close);
+                if (dialogMutex.WaitOne())
+                {
+                    progress.InvokeOnUI(progress.Close);
+                    dialogMutex.ReleaseMutex();
+                }
             }
         }
 
@@ -264,6 +276,7 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void UploadFile(string localPath, string remotePath)
         {
+            var dialogMutex = new Mutex();
             ProgressForm progress = new ProgressForm("Uploading...");
             try
             {
@@ -287,7 +300,13 @@ namespace StrongholdClient
                     }
                 }
                 var count = (int)Math.Ceiling((double)length / (double)chunk);
-                this.InvokeAsync(() => progress.ShowDialog());
+                this.InvokeAsync(() => {
+                    if (dialogMutex.WaitOne())
+                    {
+                        progress.ShowDialog();
+                        dialogMutex.ReleaseMutex();
+                    }
+                });
 
                 using (var strm = new FileStream(localPath, FileMode.Open))
                 using (var reader = new BinaryReader(strm))
@@ -307,8 +326,12 @@ namespace StrongholdClient
             }
             finally
             {
-                progress.InvokeOnUI(progress.Close);
-                this.RefreshFileDirectory();
+                if (dialogMutex.WaitOne())
+                {
+                    progress.InvokeOnUI(progress.Close);
+                    this.RefreshFileDirectory();
+                    dialogMutex.ReleaseMutex();
+                }
             }
         }
 
