@@ -15,7 +15,7 @@ namespace FileStronghold
         /// </summary>
         public FileSystemService()
         {
-            ChunkSize = 1024 * 1024 * 8;
+            ChunkSize = 1024 * 1024 * 1;
         }
 
         /// <summary>
@@ -109,25 +109,25 @@ namespace FileStronghold
         /// <returns></returns>
         public byte[] ReadFile(string path, int chunk)
         {
-            var size = FileSizeInChunks(path);
-            int length;
+            var size = (long)FileSizeInChunks(path);
+            long length;
             if (chunk >= size)
             {
                 throw new IndexOutOfRangeException();
             }
 
-            int fileLength = (int)new FileInfo(path).Length;
+            long fileLength = new FileInfo(path).Length;
 
             using (var stream = new FileStream(path, FileMode.OpenOrCreate))
             using (var reader = new BinaryReader(stream))
             {
                 byte[] buffer = null;
 
-                for (int i = 0; i <= chunk; i++)
+                for (long i = 0; i <= chunk; i++)
                 {
-                    length = (i == size - 1) ?
-                                fileLength % this.ChunkSize : this.ChunkSize;
-                    buffer = reader.ReadBytes(length);
+                    length = (i == size - 1L) ?
+                                fileLength % (long)this.ChunkSize : (long)this.ChunkSize;
+                    buffer = reader.ReadBytes((int)length);
                 }
 
                 return buffer;
