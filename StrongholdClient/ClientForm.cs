@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.ServiceModel;
 using System.Threading;
 using StrongholdClient.FileStronghold;
+using System.ComponentModel;
 
 namespace StrongholdClient
 {
@@ -177,25 +178,14 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void DownloadFile(string localPath, string remotePath)
         {
-            var dialogMutex = new Mutex();
             ProgressForm progress = new ProgressForm("Downloading...");
-            try
-            {
-                var details = this.Client.DownloadDetails(
-                                            UserName,
-                                            remotePath);
-                progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
-                this.InvokeAsync(() => {
-                    if (dialogMutex.WaitOne())
-                    {
-                        progress.ShowDialog();
-                        dialogMutex.ReleaseMutex();
-                    }
-                });
+            var details = this.Client.DownloadDetails(UserName, remotePath);
+            progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
 
-                using (var strm = new FileStream(
-                            localPath,
-                            FileMode.OpenOrCreate))
+            var bw = new BackgroundWorker();
+            bw.DoWork += (sender, e) =>
+            {
+                using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
                 using (var writer = new BinaryWriter(strm))
                 {
                     for (int i = 0; i < details.NumberOfChunks; i++)
@@ -203,18 +193,24 @@ namespace StrongholdClient
                         var data =
                             this.Client.DownloadFile(UserName, remotePath, i);
                         writer.Write(data);
-                        progress.IncrementValue(details.ChunkSize);
+                        bw.ReportProgress(details.ChunkSize);
                     }
                 }
-            }
-            finally
+            };
+
+            bw.ProgressChanged += (sender, e) =>
             {
-                if (dialogMutex.WaitOne())
-                {
-                    progress.InvokeOnUI(progress.Close);
-                    dialogMutex.ReleaseMutex();
-                }
-            }
+                progress.IncrementValue(e.ProgressPercentage);
+            };
+
+            bw.RunWorkerCompleted += (sender, e) =>
+            {
+                progress.InvokeOnUI(progress.Close);
+            };
+
+            bw.WorkerReportsProgress = true;
+            bw.RunWorkerAsync();
+            progress.ShowDialog();
         }
 
         /// <summary>
@@ -273,70 +269,69 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void UploadFile(string localPath, string remotePath)
         {
-            var dialogMutex = new Mutex();
             ProgressForm progress = new ProgressForm("Uploading...");
+
+            var length = new FileInfo(localPath).Length;
+
+            progress.Total = length;
+            var chunk = MIN_UPLOAD_CHUNK;
             try
             {
-                var length = new FileInfo(localPath).Length;
-
-                progress.Total = length;
-                var chunk = MIN_UPLOAD_CHUNK;
-                try
-                {
-                    chunk = this.Client.GetMaxRequestLength() - UPLOAD_HEADER_SIZE;
-                }
-                finally
-                {
-                    if (chunk < MIN_UPLOAD_CHUNK)
-                    {
-                        chunk = MIN_UPLOAD_CHUNK;
-                    }
-                    else if (chunk > MAX_UPLOAD_CHUNK)
-                    {
-                        chunk = MAX_UPLOAD_CHUNK;
-                    }
-                }
-                var count = (int)Math.Ceiling((double)length / (double)chunk);
-
-                this.InvokeAsync(() => {
-                    if (dialogMutex.WaitOne())
-                    {
-                        progress.ShowDialog();
-                        dialogMutex.ReleaseMutex();
-                    }
-                });
-
-                if (length < chunk)
-                {
-                    chunk = (int)length;
-                }
-
-                this.InvokeAsync(() => progress.ShowDialog());
-
-                using (var strm = new FileStream(localPath, FileMode.Open))
-                using (var reader = new BinaryReader(strm))
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        var size = i == (count - 1) ? length % chunk : chunk;
-                        var buff = reader.ReadBytes((int)size);
-                        this.Client.UploadFile(
-                                    this.UserName,
-                                    remotePath,
-                                    buff,
-                                    i > 0);
-                        progress.IncrementValue(chunk);
-                    }
-                }
+                chunk = this.Client.GetMaxRequestLength() - UPLOAD_HEADER_SIZE;
             }
             finally
             {
-                if (dialogMutex.WaitOne())
+                if (chunk < MIN_UPLOAD_CHUNK)
+                {
+                    chunk = MIN_UPLOAD_CHUNK;
+                }
+                else if (chunk > MAX_UPLOAD_CHUNK)
+                {
+                    chunk = MAX_UPLOAD_CHUNK;
+                }
+            }
+            var count = (int)Math.Ceiling((double)length / (double)chunk);
+
+            if (length < chunk)
+            {
+                chunk = (int)length;
+            }
+
+            using (var bw = new BackgroundWorker())
+            {
+                bw.WorkerReportsProgress = true;
+                bw.DoWork += (sender, e) =>
+                {
+                    using (var strm = new FileStream(localPath, FileMode.Open))
+                    using (var reader = new BinaryReader(strm))
+                    {
+                        for (int i = 0; i < count; i++)
+                        {
+                            var size = i == (count - 1) ? length % chunk : chunk;
+                            var buff = reader.ReadBytes((int)size);
+                            this.Client.UploadFile(
+                                        this.UserName,
+                                        remotePath,
+                                        buff,
+                                        i > 0);
+                            bw.ReportProgress(chunk);
+                        }
+                    }
+                };
+
+                bw.ProgressChanged += (sender, e) =>
+                {
+                    progress.IncrementValue(e.ProgressPercentage);
+                };
+
+                bw.RunWorkerCompleted += (sender, e) =>
                 {
                     progress.InvokeOnUI(progress.Close);
                     this.RefreshFileDirectory();
-                    dialogMutex.ReleaseMutex();
-                }
+                };
+
+                bw.RunWorkerAsync();
+                progress.ShowDialog();
             }
         }
 
