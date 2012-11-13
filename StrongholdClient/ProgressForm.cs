@@ -11,6 +11,7 @@ namespace StrongholdClient
 {
     public partial class ProgressForm : Form
     {
+        public event EventHandler OnCancel;
 
         public double Total { get; set; }
 
@@ -28,7 +29,6 @@ namespace StrongholdClient
             InitializeComponent();
             this.Title = title;
             this.Text = string.Format("{0} 0%", title);
-            this.Height = 120;
         }
 
         /// <summary>
@@ -49,13 +49,17 @@ namespace StrongholdClient
             updateEvents.Clear();
             this.InvokeOnUI(() =>
             {
-                this.progressBar1.Value = (int)((Progress/Total) * 100.0);
+                this.progressBar.Value = (int)((Progress/Total) * 100.0);
                 this.Text = string.Format("{0} {1}%", this.Title, value);
                 tb_progress.Text = string.Format("{0:n0} of {1:n0}", Progress, Total);
                 tb_time_estimate.Text = "Unknown time remaining";
             });
         }
 
+        /// <summary>
+        /// Increment the ProgressBar progress by the given value
+        /// </summary>
+        /// <param name="value">Value in progress format (must be less than ProgressBar max)</param>
         public void IncrementValue(double value)
         {
             this.Progress += value;
@@ -81,11 +85,19 @@ namespace StrongholdClient
             this.InvokeOnUI(() =>
             {
                 int progress = (int)((Progress / Total) * 100.0);
-                this.progressBar1.Value = progress;
+                this.progressBar.Value = progress;
                 this.Text = string.Format("{0} {1}%", this.Title, progress);
                 tb_progress.Text = string.Format("{0:n0} of {1:n0}", Progress, Total);
                 tb_time_estimate.Text = string.Format("{0:n0} seconds remaining", estimatedRemainingTime / 1000);
             });
+        }
+
+        private void cancel_Click(object sender, EventArgs e)
+        {
+            if (OnCancel != null)
+            {
+                OnCancel(this, e);
+            }
         }
     }
 }

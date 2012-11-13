@@ -182,35 +182,51 @@ namespace StrongholdClient
             var details = this.Client.DownloadDetails(UserName, remotePath);
             progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
 
-            var bw = new BackgroundWorker();
-            bw.DoWork += (sender, e) =>
+            using (var bw = new BackgroundWorker())
             {
                 using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
-                using (var writer = new BinaryWriter(strm))
                 {
-                    for (int i = 0; i < details.NumberOfChunks; i++)
+                    using (var writer = new BinaryWriter(strm))
                     {
-                        var data =
-                            this.Client.DownloadFile(UserName, remotePath, i);
-                        writer.Write(data);
-                        bw.ReportProgress(details.ChunkSize);
+                        bw.DoWork += (sender, e) =>
+                        {
+                            for (int i = 0; i < details.NumberOfChunks; i++)
+                            {
+                                // Exit the loop if we're told to cancel
+                                if (bw.CancellationPending)
+                                {
+                                    e.Cancel = true;
+                                    break;
+                                }
+
+                                var data = this.Client.DownloadFile(UserName, remotePath, i);
+                                writer.Write(data);
+                                bw.ReportProgress(details.ChunkSize);
+                            }
+                        };
+
+                        bw.ProgressChanged += (sender, e) =>
+                        {
+                            progress.IncrementValue(e.ProgressPercentage);
+                        };
+
+                        bw.RunWorkerCompleted += (sender, e) =>
+                        {
+                            progress.InvokeOnUI(progress.Close);
+                        };
+
+                        progress.OnCancel += (sender, e) =>
+                        {
+                            bw.CancelAsync();
+                        };
+
+                        bw.WorkerReportsProgress = true;
+                        bw.WorkerSupportsCancellation = true;
+                        bw.RunWorkerAsync();
+                        progress.ShowDialog();
                     }
                 }
-            };
-
-            bw.ProgressChanged += (sender, e) =>
-            {
-                progress.IncrementValue(e.ProgressPercentage);
-            };
-
-            bw.RunWorkerCompleted += (sender, e) =>
-            {
-                progress.InvokeOnUI(progress.Close);
-            };
-
-            bw.WorkerReportsProgress = true;
-            bw.RunWorkerAsync();
-            progress.ShowDialog();
+            }
         }
 
         /// <summary>
@@ -252,13 +268,15 @@ namespace StrongholdClient
 
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var localPath = dialog.FileName;
-                var file = Path.GetFileName(localPath);
-                var form = new UploadForm(this.GetPath(), file);
-                if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    UploadFile(localPath, form.Path);
-                }
+                foreach (var localPath in dialog.FileNames)
+	            {
+                    var file = Path.GetFileName(localPath);
+                    var form = new UploadForm(this.GetPath(), file);
+                    if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        UploadFile(localPath, form.Path);
+                    }
+	            }
             }
         }
 
@@ -273,6 +291,8 @@ namespace StrongholdClient
 
             var length = new FileInfo(localPath).Length;
 
+            // Create the file download chunks and get ready to update the
+            // progress bar
             progress.Total = length;
             var chunk = MIN_UPLOAD_CHUNK;
             try
@@ -300,6 +320,7 @@ namespace StrongholdClient
             using (var bw = new BackgroundWorker())
             {
                 bw.WorkerReportsProgress = true;
+                bw.WorkerSupportsCancellation = true;
                 bw.DoWork += (sender, e) =>
                 {
                     using (var strm = new FileStream(localPath, FileMode.Open))
@@ -308,12 +329,10 @@ namespace StrongholdClient
                         for (int i = 0; i < count; i++)
                         {
                             var size = i == (count - 1) ? length % chunk : chunk;
-                            var buff = reader.ReadBytes((int)size);
+                            var buffer = reader.ReadBytes((int)size);
+                            bool appendToExistingFile = (i > 0);
                             this.Client.UploadFile(
-                                        this.UserName,
-                                        remotePath,
-                                        buff,
-                                        i > 0);
+                                this.UserName, remotePath, buffer, appendToExistingFile);
                             bw.ReportProgress(chunk);
                         }
                     }
@@ -327,7 +346,15 @@ namespace StrongholdClient
                 bw.RunWorkerCompleted += (sender, e) =>
                 {
                     progress.InvokeOnUI(progress.Close);
-                    this.RefreshFileDirectory();
+                    if (!e.Cancelled)
+                    {
+                        this.RefreshFileDirectory();
+                    }
+                };
+
+                progress.OnCancel += (sender, e) =>
+                {
+                    bw.CancelAsync();
                 };
 
                 bw.RunWorkerAsync();
