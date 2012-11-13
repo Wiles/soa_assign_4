@@ -30,8 +30,8 @@
         {
             this.lblText = new System.Windows.Forms.Label();
             this.txtPath = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.cancel = new System.Windows.Forms.Button();
+            this.ok = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblText
@@ -50,35 +50,35 @@
             this.txtPath.Size = new System.Drawing.Size(344, 22);
             this.txtPath.TabIndex = 1;
             // 
-            // button2
+            // cancel
             // 
-            this.button2.Location = new System.Drawing.Point(257, 63);
-            this.button2.Margin = new System.Windows.Forms.Padding(4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(100, 28);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "Cancel";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.cancel.Location = new System.Drawing.Point(257, 63);
+            this.cancel.Margin = new System.Windows.Forms.Padding(4);
+            this.cancel.Name = "cancel";
+            this.cancel.Size = new System.Drawing.Size(100, 28);
+            this.cancel.TabIndex = 4;
+            this.cancel.Text = "Cancel";
+            this.cancel.UseVisualStyleBackColor = true;
+            this.cancel.Click += new System.EventHandler(this.cancel_Click);
             // 
-            // button1
+            // ok
             // 
-            this.button1.Location = new System.Drawing.Point(149, 63);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 28);
-            this.button1.TabIndex = 3;
-            this.button1.Text = "Upload";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.ok.Location = new System.Drawing.Point(149, 63);
+            this.ok.Margin = new System.Windows.Forms.Padding(4);
+            this.ok.Name = "ok";
+            this.ok.Size = new System.Drawing.Size(100, 28);
+            this.ok.TabIndex = 3;
+            this.ok.Text = "Upload";
+            this.ok.UseVisualStyleBackColor = true;
+            this.ok.Click += new System.EventHandler(this.ok_Click);
             // 
             // UploadForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(368, 100);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.cancel);
+            this.Controls.Add(this.ok);
             this.Controls.Add(this.txtPath);
             this.Controls.Add(this.lblText);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -97,7 +97,7 @@
 
         private System.Windows.Forms.Label lblText;
         private System.Windows.Forms.TextBox txtPath;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button cancel;
+        private System.Windows.Forms.Button ok;
     }
 }

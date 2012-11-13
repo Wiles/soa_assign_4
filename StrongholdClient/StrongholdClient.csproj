@@ -49,30 +49,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncHelper.cs" />
-    <Compile Include="ClientForm.cs">
+    <Compile Include="tools\AsyncHelper.cs" />
+    <Compile Include="ui\ClientForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ClientForm.Designer.cs">
+    <Compile Include="ui\ClientForm.Designer.cs">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="DeleteItemForm.cs">
+    <Compile Include="ui\DeleteItemForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DeleteItemForm.Designer.cs">
+    <Compile Include="ui\DeleteItemForm.Designer.cs">
       <DependentUpon>DeleteItemForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="NewFolder.cs">
+    <Compile Include="ui\NewFolder.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewFolder.Designer.cs">
+    <Compile Include="ui\NewFolder.Designer.cs">
       <DependentUpon>NewFolder.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="ProgressForm.cs">
+    <Compile Include="ui\ProgressForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ProgressForm.Designer.cs">
+    <Compile Include="ui\ProgressForm.Designer.cs">
       <DependentUpon>ProgressForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -81,29 +81,30 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="tools\TreeViewHelper.cs" />
     <Compile Include="TreeBuilder.cs" />
-    <Compile Include="UploadForm.cs">
+    <Compile Include="ui\UploadForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UploadForm.Designer.cs">
+    <Compile Include="ui\UploadForm.Designer.cs">
       <DependentUpon>UploadForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="UserNameForm.cs">
+    <Compile Include="ui\UserNameForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UserNameForm.Designer.cs">
+    <Compile Include="ui\UserNameForm.Designer.cs">
       <DependentUpon>UserNameForm.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ClientForm.resx">
+    <EmbeddedResource Include="ui\ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DeleteItemForm.resx">
+    <EmbeddedResource Include="ui\DeleteItemForm.resx">
       <DependentUpon>DeleteItemForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewFolder.resx">
+    <EmbeddedResource Include="ui\NewFolder.resx">
       <DependentUpon>NewFolder.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ProgressForm.resx">
+    <EmbeddedResource Include="ui\ProgressForm.resx">
       <DependentUpon>ProgressForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -115,10 +116,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="UploadForm.resx">
+    <EmbeddedResource Include="ui\UploadForm.resx">
       <DependentUpon>UploadForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UserNameFOrm.resx">
+    <EmbeddedResource Include="ui\UserNameFOrm.resx">
       <DependentUpon>UserNameForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config">

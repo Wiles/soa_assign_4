@@ -11,12 +11,29 @@ namespace StrongholdClient
 {
     public partial class ProgressForm : Form
     {
+        /// <summary>
+        /// Was the dialog cancelled (different from setting DialogResult, as Modalness is not changed)
+        /// </summary>
+        public bool WasCancelled { get; set; }
+
+        /// <summary>
+        /// Fired when the cancel button is clicked on the dialog
+        /// </summary>
         public event EventHandler OnCancel;
 
+        /// <summary>
+        /// Total amount of the progress bar
+        /// </summary>
         public double Total { get; set; }
 
+        /// <summary>
+        /// Current progress (out of Total)
+        /// </summary>
         private double Progress = 0;
 
+        /// <summary>
+        /// Update of the progress update events. Used to compare prior status to current.
+        /// </summary>
         private Queue<KeyValuePair<int, double>> updateEvents = new Queue<KeyValuePair<int,double>>();
 
         /// <summary>
@@ -38,6 +55,26 @@ namespace StrongholdClient
         /// The title.
         /// </value>
         private string Title { get; set; }
+
+        /// <summary>
+        /// Set the filename on the dialog
+        /// </summary>
+        public string Filename
+        {
+            set
+            {
+                this.filenameLabel.Text = value;
+            }
+        }
+
+        /// <summary>
+        /// Handle loading of the dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ProgressForm_Load(object sender, EventArgs e)
+        {
+        }
 
         /// <summary>
         /// Sets the value.
@@ -92,8 +129,15 @@ namespace StrongholdClient
             });
         }
 
+        /// <summary>
+        /// Handle Cancel clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cancel_Click(object sender, EventArgs e)
         {
+            WasCancelled = true;
+
             if (OnCancel != null)
             {
                 OnCancel(this, e);

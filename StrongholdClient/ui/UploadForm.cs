@@ -55,7 +55,7 @@ namespace StrongholdClient
         /// <param name="e">
         ///   The <see cref="EventArgs" /> instance containing the event data.
         /// </param>
-        private void button1_Click(object sender, EventArgs e)
+        private void ok_Click(object sender, EventArgs e)
         {
             DialogResult = System.Windows.Forms.DialogResult.OK;
             this.Close();
@@ -68,7 +68,7 @@ namespace StrongholdClient
         /// <param name="e">
         ///   The <see cref="EventArgs" /> instance containing the event data.
         /// </param>
-        private void button2_Click(object sender, EventArgs e)
+        private void cancel_Click(object sender, EventArgs e)
         {
             DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.Close();

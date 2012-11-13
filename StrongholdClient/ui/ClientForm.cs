@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.ServiceModel;
@@ -14,6 +15,7 @@ namespace StrongholdClient
 {
     public partial class ClientForm : Form
     {
+        public static readonly Color DirectoryForeColor = Color.Blue;
 
         private static int MIN_UPLOAD_CHUNK = 1024 * 1024;
         private static int MAX_UPLOAD_CHUNK = 1024 * 1024 * 8;
@@ -45,6 +47,11 @@ namespace StrongholdClient
         private string UserName { get; set; }
 
         /// <summary>
+        /// Help with providing functions on the tree directory
+        /// </summary>
+        private TreeViewHelper treeViewHelper { get; set; }
+
+        /// <summary>
         /// Handles the Load event of the Form1 control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -58,6 +65,7 @@ namespace StrongholdClient
             {
                 this.UserName = dialog.UserName;
                 this.Text = this.Text + " - " + this.UserName;
+                this.treeViewHelper = new TreeViewHelper(UserName, treeDirectory);
                 RefreshFileDirectory();
             }
             else
@@ -72,13 +80,14 @@ namespace StrongholdClient
         private void RefreshFileDirectory()
         {
             this.InvokeOnUI(() =>
-                {
-                    btnRefresh.Enabled = false;
-                    btnUpload.Enabled = false;
-                    btnDownload.Enabled = false;
-                    btnDelete.Enabled = false;
-                    btnNewFolder.Enabled = false;
-                });
+            {
+                btnRefresh.Enabled = false;
+                btnUpload.Enabled = false;
+                btnDownload.Enabled = false;
+                btnDelete.Enabled = false;
+                btnNewFolder.Enabled = false;
+            });
+
             this.InvokeAsync(() =>
             {
                 var dir = this.Client.GetDirectoryListing(this.UserName);
@@ -121,10 +130,10 @@ namespace StrongholdClient
             {
                 lblFileName.Text = e.Node.Text;
 
-                if (e.Node.ForeColor == Color.Blue)
+                if (e.Node.ForeColor == DirectoryForeColor)
                 {
                     lblFileType.Text = "directory";
-                    btnDownload.Enabled = false;
+                    btnDownload.Enabled = true;
                     btnUpload.Enabled = true;
                     btnDelete.Enabled = true;
                     btnNewFolder.Enabled = true;
@@ -158,16 +167,29 @@ namespace StrongholdClient
         /// </param>
         private void btnDownload_Click(object sender, EventArgs e)
         {
-            var dialog = new SaveFileDialog();
-            dialog.Title = "Select a download target";
-            var remotePath = this.GetPath();
-            var fileName = Path.GetFileName(remotePath);
-            dialog.OverwritePrompt = true;
-            dialog.FileName = fileName;
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            var remotePath = treeViewHelper.GetPath();
+            if (treeViewHelper.IsSelectedPathDirectory())
             {
-                DownloadFile(dialog.FileName, remotePath);
+                var dialog = new FolderBrowserDialog();
+                dialog.Description = "Select a download target";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    DownloadFolder(dialog.SelectedPath, remotePath);
+                }
+            }
+            else
+            {
+                var dialog = new SaveFileDialog();
+                dialog.Title = "Select a download target";
+
+                var fileName = Path.GetFileName(remotePath);
+                dialog.OverwritePrompt = true;
+                dialog.FileName = fileName;
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    DownloadFile(dialog.FileName, remotePath);
+                }
             }
         }
 
@@ -180,12 +202,90 @@ namespace StrongholdClient
         {
             ProgressForm progress = new ProgressForm("Downloading...");
             var details = this.Client.DownloadDetails(UserName, remotePath);
+            progress.Filename = Path.GetFileName(localPath);
             progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
 
             using (var bw = new BackgroundWorker())
+            using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
+            using (var writer = new BinaryWriter(strm))
             {
-                using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
+                bw.DoWork += (sender, e) =>
                 {
+                    for (int i = 0; i < details.NumberOfChunks; i++)
+                    {
+                        // Exit the loop if we're told to cancel
+                        if (bw.CancellationPending)
+                        {
+                            e.Cancel = true;
+                            break;
+                        }
+
+                        var data = this.Client.DownloadFile(UserName, remotePath, i);
+                        writer.Write(data);
+                        bw.ReportProgress(details.ChunkSize);
+                    }
+                };
+
+                bw.ProgressChanged += (sender, e) =>
+                {
+                    progress.IncrementValue(e.ProgressPercentage);
+                };
+
+                bw.RunWorkerCompleted += (sender, e) =>
+                {
+                    progress.InvokeOnUI(progress.Close);
+                };
+
+                progress.OnCancel += (sender, e) =>
+                {
+                    bw.CancelAsync();
+                };
+
+                bw.WorkerReportsProgress = true;
+                bw.WorkerSupportsCancellation = true;
+                bw.RunWorkerAsync();
+                progress.ShowDialog();
+            }
+        }
+
+        /// <summary>
+        /// Downloads the folder.
+        /// </summary>
+        /// <param name="localPath">The local path.</param>
+        /// <param name="remotePath">The remote path.</param>
+        private void DownloadFolder(string localPath, string remotePath)
+        {
+            if (treeViewHelper.IsSelectedPathDirectory())
+            {
+                var files = treeViewHelper.RecursiveListFiles();
+                var directories = (from f in treeViewHelper.GetUniqueDirectories(files)
+                                    select Path.Combine(localPath, f)).ToList();
+
+                var filteredFiles = (from f in files
+                            where !(directories.Contains(f))
+                            select f).ToList();
+
+                foreach (var directory in directories)
+                {
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+                }
+
+                int fileDownloadIndex = 0;
+                foreach (var file in filteredFiles)
+                {
+                    var fileLocalPath = Path.Combine(localPath, file);
+                    var fileRemotePath = file;
+
+                    ProgressForm progress = new ProgressForm(String.Format("Downloading {0}/{1}...", fileDownloadIndex, filteredFiles.Count));
+                    var details = this.Client.DownloadDetails(UserName, fileRemotePath);
+                    progress.Filename = Path.GetFileName(fileLocalPath);
+                    progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
+
+                    using (var bw = new BackgroundWorker())
+                    using (var strm = new FileStream(fileLocalPath, FileMode.OpenOrCreate))
                     using (var writer = new BinaryWriter(strm))
                     {
                         bw.DoWork += (sender, e) =>
@@ -199,7 +299,7 @@ namespace StrongholdClient
                                     break;
                                 }
 
-                                var data = this.Client.DownloadFile(UserName, remotePath, i);
+                                var data = this.Client.DownloadFile(UserName, fileRemotePath, i);
                                 writer.Write(data);
                                 bw.ReportProgress(details.ChunkSize);
                             }
@@ -220,10 +320,19 @@ namespace StrongholdClient
                             bw.CancelAsync();
                         };
 
+                        progress.StartPosition = FormStartPosition.CenterParent;
+
                         bw.WorkerReportsProgress = true;
                         bw.WorkerSupportsCancellation = true;
                         bw.RunWorkerAsync();
+
                         progress.ShowDialog();
+                        if (progress.WasCancelled)
+                        {
+                            break;
+                        }
+
+                        fileDownloadIndex++;
                     }
                 }
             }
@@ -239,15 +348,16 @@ namespace StrongholdClient
         private void btnNewFolder_Click(object sender, EventArgs e)
         {
             var dialog = new NewFolder();
-            dialog.Folder = this.GetPath();
+            dialog.Folder = treeViewHelper.GetPath();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 String folder = dialog.Folder;
-                try{
+                try
+                {
                     this.Client.NewFolder(UserName, folder);
                     this.RefreshFileDirectory();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show("Error: " + ex.Message);
                 }
@@ -269,14 +379,14 @@ namespace StrongholdClient
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 foreach (var localPath in dialog.FileNames)
-	            {
+                {
                     var file = Path.GetFileName(localPath);
-                    var form = new UploadForm(this.GetPath(), file);
+                    var form = new UploadForm(treeViewHelper.GetPath(), file);
                     if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     {
                         UploadFile(localPath, form.Path);
                     }
-	            }
+                }
             }
         }
 
@@ -293,6 +403,7 @@ namespace StrongholdClient
 
             // Create the file download chunks and get ready to update the
             // progress bar
+            progress.Filename = Path.GetFileName(localPath);
             progress.Total = length;
             var chunk = MIN_UPLOAD_CHUNK;
             try
@@ -310,6 +421,7 @@ namespace StrongholdClient
                     chunk = MAX_UPLOAD_CHUNK;
                 }
             }
+
             var count = (int)Math.Ceiling((double)length / (double)chunk);
 
             if (length < chunk)
@@ -318,23 +430,39 @@ namespace StrongholdClient
             }
 
             using (var bw = new BackgroundWorker())
+            using (var strm = new FileStream(localPath, FileMode.Open))
+            using (var reader = new BinaryReader(strm))
             {
                 bw.WorkerReportsProgress = true;
                 bw.WorkerSupportsCancellation = true;
                 bw.DoWork += (sender, e) =>
                 {
-                    using (var strm = new FileStream(localPath, FileMode.Open))
-                    using (var reader = new BinaryReader(strm))
+
+                    for (int i = 0; i < count; i++)
                     {
-                        for (int i = 0; i < count; i++)
+                        // Check if the worker was cancelled
+                        if (bw.CancellationPending)
                         {
-                            var size = i == (count - 1) ? length % chunk : chunk;
-                            var buffer = reader.ReadBytes((int)size);
-                            bool appendToExistingFile = (i > 0);
-                            this.Client.UploadFile(
-                                this.UserName, remotePath, buffer, appendToExistingFile);
-                            bw.ReportProgress(chunk);
+                            e.Cancel = true;
+                            try
+                            {
+                                // Attempt to delete the item on the remote path
+                                this.Client.DeleteItem(this.UserName, remotePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Failure to delete remains of upload, because " + ex.Message);
+                            }
+
+                            break;
                         }
+
+                        var size = i == (count - 1) ? length % chunk : chunk;
+                        var buffer = reader.ReadBytes((int)size);
+                        bool appendToExistingFile = (i > 0);
+                        this.Client.UploadFile(
+                            this.UserName, remotePath, buffer, appendToExistingFile);
+                        bw.ReportProgress(chunk);
                     }
                 };
 
@@ -371,7 +499,7 @@ namespace StrongholdClient
         /// </param>
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            var dialog = new DeleteItemForm(this.GetPath());
+            var dialog = new DeleteItemForm(treeViewHelper.GetPath());
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 var folder = dialog.Path;
@@ -387,34 +515,5 @@ namespace StrongholdClient
             }
         }
 
-        /// <summary>
-        /// Gets the currently selected path.
-        /// </summary>
-        /// <returns>The path.</returns>
-        private string GetPath()
-        {
-            List<String> directories = new List<String>();
-            TreeNode node = treeDirectory.SelectedNode;
-            while (node != null)
-            {
-                directories.Add(node.Text);
-                node = node.Parent;
-            }
-
-            if (directories.Count == 0)
-            {
-                directories.Add(UserName);
-            }
-
-            directories.Reverse();
-            StringBuilder baseDir = new StringBuilder();
-            foreach (var dir in directories)
-            {
-                baseDir.Append(dir).Append("\\");
-            }
-
-            baseDir.Length -= 1;
-            return baseDir.ToString();
-        }
     }
 }

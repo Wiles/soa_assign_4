@@ -32,11 +32,12 @@
             this.tb_progress = new System.Windows.Forms.Label();
             this.tb_time_estimate = new System.Windows.Forms.Label();
             this.cancel = new System.Windows.Forms.Button();
+            this.filenameLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(15, 30);
+            this.progressBar.Location = new System.Drawing.Point(15, 54);
             this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(299, 23);
@@ -44,7 +45,7 @@
             // 
             // tb_progress
             // 
-            this.tb_progress.Location = new System.Drawing.Point(16, 11);
+            this.tb_progress.Location = new System.Drawing.Point(16, 35);
             this.tb_progress.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.tb_progress.Name = "tb_progress";
             this.tb_progress.Size = new System.Drawing.Size(297, 16);
@@ -54,7 +55,7 @@
             // 
             // tb_time_estimate
             // 
-            this.tb_time_estimate.Location = new System.Drawing.Point(11, 55);
+            this.tb_time_estimate.Location = new System.Drawing.Point(11, 79);
             this.tb_time_estimate.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.tb_time_estimate.Name = "tb_time_estimate";
             this.tb_time_estimate.Size = new System.Drawing.Size(303, 18);
@@ -64,7 +65,7 @@
             // 
             // cancel
             // 
-            this.cancel.Location = new System.Drawing.Point(239, 97);
+            this.cancel.Location = new System.Drawing.Point(238, 112);
             this.cancel.Name = "cancel";
             this.cancel.Size = new System.Drawing.Size(75, 23);
             this.cancel.TabIndex = 4;
@@ -72,12 +73,22 @@
             this.cancel.UseVisualStyleBackColor = true;
             this.cancel.Click += new System.EventHandler(this.cancel_Click);
             // 
+            // filenameLabel
+            // 
+            this.filenameLabel.Location = new System.Drawing.Point(16, 9);
+            this.filenameLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.filenameLabel.Name = "filenameLabel";
+            this.filenameLabel.Size = new System.Drawing.Size(297, 16);
+            this.filenameLabel.TabIndex = 5;
+            this.filenameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // ProgressForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(328, 132);
+            this.ClientSize = new System.Drawing.Size(328, 147);
             this.ControlBox = false;
+            this.Controls.Add(this.filenameLabel);
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.tb_time_estimate);
             this.Controls.Add(this.tb_progress);
@@ -90,6 +101,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "Progress";
+            this.Load += new System.EventHandler(this.ProgressForm_Load);
             this.ResumeLayout(false);
 
         }
@@ -100,5 +112,6 @@
         private System.Windows.Forms.Label tb_progress;
         private System.Windows.Forms.Label tb_time_estimate;
         private System.Windows.Forms.Button cancel;
+        private System.Windows.Forms.Label filenameLabel;
     }
 }
