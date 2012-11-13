@@ -28,32 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.ok = new System.Windows.Forms.Button();
+            this.cancel = new System.Windows.Forms.Button();
             this.tb_folder = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // button1
+            // ok
             // 
-            this.button1.Location = new System.Drawing.Point(155, 48);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(100, 28);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Create";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.ok.Location = new System.Drawing.Point(155, 48);
+            this.ok.Margin = new System.Windows.Forms.Padding(4);
+            this.ok.Name = "ok";
+            this.ok.Size = new System.Drawing.Size(100, 28);
+            this.ok.TabIndex = 1;
+            this.ok.Text = "Create";
+            this.ok.UseVisualStyleBackColor = true;
+            this.ok.Click += new System.EventHandler(this.ok_Click);
             // 
-            // button2
+            // cancel
             // 
-            this.button2.Location = new System.Drawing.Point(263, 48);
-            this.button2.Margin = new System.Windows.Forms.Padding(4);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(100, 28);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Cancel";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.cancel.Location = new System.Drawing.Point(263, 48);
+            this.cancel.Margin = new System.Windows.Forms.Padding(4);
+            this.cancel.Name = "cancel";
+            this.cancel.Size = new System.Drawing.Size(100, 28);
+            this.cancel.TabIndex = 2;
+            this.cancel.Text = "Cancel";
+            this.cancel.UseVisualStyleBackColor = true;
+            this.cancel.Click += new System.EventHandler(this.cancel_Click);
             // 
             // tb_folder
             // 
@@ -70,8 +70,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(379, 85);
             this.Controls.Add(this.tb_folder);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.cancel);
+            this.Controls.Add(this.ok);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
@@ -87,8 +87,8 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button ok;
+        private System.Windows.Forms.Button cancel;
         private System.Windows.Forms.TextBox tb_folder;
     }
 }

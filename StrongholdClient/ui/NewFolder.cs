@@ -38,7 +38,7 @@ namespace StrongholdClient
         /// <param name="e">
         ///   The <see cref="EventArgs" /> instance containing the event data.
         /// </param>
-        private void button2_Click(object sender, EventArgs e)
+        private void cancel_Click(object sender, EventArgs e)
         {
             this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.Close();
@@ -52,11 +52,18 @@ namespace StrongholdClient
         /// <param name="e">
         ///   The <see cref="EventArgs" /> instance containing the event data.
         /// </param>
-        private void button1_Click(object sender, EventArgs e)
+        private void ok_Click(object sender, EventArgs e)
         {
-            Folder = tb_folder.Text;
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.Close();
+            if (String.IsNullOrWhiteSpace(tb_folder.Text))
+            {
+                MessageBox.Show("Please enter a name for the folder");
+            }
+            else
+            {
+                Folder = tb_folder.Text;
+                this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                this.Close();
+            }
         }
 
         /// <summary>
@@ -71,11 +78,11 @@ namespace StrongholdClient
         {
             if (e.KeyCode == Keys.Enter)
             {
-                button1_Click(this, EventArgs.Empty);
+                ok_Click(this, EventArgs.Empty);
             }
             else if (e.KeyCode == Keys.Escape)
             {
-                button2_Click(this, EventArgs.Empty);
+                cancel_Click(this, EventArgs.Empty);
             }
         }
     }

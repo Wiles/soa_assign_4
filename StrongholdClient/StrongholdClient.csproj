@@ -82,7 +82,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="tools\TreeViewHelper.cs" />
-    <Compile Include="TreeBuilder.cs" />
+    <Compile Include="tools\TreeBuilder.cs" />
     <Compile Include="ui\UploadForm.cs">
       <SubType>Form</SubType>
     </Compile>

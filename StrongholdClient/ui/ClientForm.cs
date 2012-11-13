@@ -90,17 +90,24 @@ namespace StrongholdClient
 
             this.InvokeAsync(() =>
             {
-                var dir = this.Client.GetDirectoryListing(this.UserName);
-                var tree = TreeBuilder.BuildTreeView(dir);
-                this.InvokeOnUI(() =>
+                try
                 {
-                    lblFileName.Text = dir.Name;
-                    treeDirectory.Nodes.Clear();
-                    treeDirectory.Nodes.Add(tree);
-                    btnRefresh.Enabled = true;
-                    treeDirectory.Nodes[0].Expand();
-                    treeDirectory.SelectedNode = treeDirectory.Nodes[0];
-                });
+                    var dir = this.Client.GetDirectoryListing(this.UserName);
+                    var tree = TreeBuilder.BuildTreeView(dir);
+                    this.InvokeOnUI(() =>
+                    {
+                        lblFileName.Text = dir.Name;
+                        treeDirectory.Nodes.Clear();
+                        treeDirectory.Nodes.Add(tree);
+                        btnRefresh.Enabled = true;
+                        treeDirectory.Nodes[0].Expand();
+                        treeDirectory.SelectedNode = treeDirectory.Nodes[0];
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Failure to refresh file browser, because: " + ex.Message, "Error");
+                }
             });
         }
 
@@ -167,29 +174,36 @@ namespace StrongholdClient
         /// </param>
         private void btnDownload_Click(object sender, EventArgs e)
         {
-            var remotePath = treeViewHelper.GetPath();
-            if (treeViewHelper.IsSelectedPathDirectory())
+            try
             {
-                var dialog = new FolderBrowserDialog();
-                dialog.Description = "Select a download target";
-                if (dialog.ShowDialog() == DialogResult.OK)
+                var remotePath = treeViewHelper.GetSelectedPath();
+                if (treeViewHelper.IsSelectedPathDirectory())
                 {
-                    DownloadFolder(dialog.SelectedPath, remotePath);
+                    var dialog = new FolderBrowserDialog();
+                    dialog.Description = "Select a download target";
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        DownloadFolder(dialog.SelectedPath, remotePath);
+                    }
+                }
+                else
+                {
+                    var dialog = new SaveFileDialog();
+                    dialog.Title = "Select a download target";
+
+                    var fileName = Path.GetFileName(remotePath);
+                    dialog.OverwritePrompt = true;
+                    dialog.FileName = fileName;
+
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        DownloadFile(dialog.FileName, remotePath);
+                    }
                 }
             }
-            else
+            catch (Exception)
             {
-                var dialog = new SaveFileDialog();
-                dialog.Title = "Select a download target";
-
-                var fileName = Path.GetFileName(remotePath);
-                dialog.OverwritePrompt = true;
-                dialog.FileName = fileName;
-
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    DownloadFile(dialog.FileName, remotePath);
-                }
+                MessageBox.Show("Failure to process download");
             }
         }
 
@@ -200,95 +214,20 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void DownloadFile(string localPath, string remotePath)
         {
-            ProgressForm progress = new ProgressForm("Downloading...");
-            var details = this.Client.DownloadDetails(UserName, remotePath);
-            progress.Filename = Path.GetFileName(localPath);
-            progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
-
-            using (var bw = new BackgroundWorker())
-            using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
-            using (var writer = new BinaryWriter(strm))
+            try
             {
-                bw.DoWork += (sender, e) =>
+                ProgressForm progress = new ProgressForm("Downloading...");
+                var details = this.Client.DownloadDetails(UserName, remotePath);
+                progress.Filename = Path.GetFileName(localPath);
+                progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
+
+                using (var bw = new BackgroundWorker())
+                using (var strm = new FileStream(localPath, FileMode.OpenOrCreate))
+                using (var writer = new BinaryWriter(strm))
                 {
-                    for (int i = 0; i < details.NumberOfChunks; i++)
+                    bw.DoWork += (sender, e) =>
                     {
-                        // Exit the loop if we're told to cancel
-                        if (bw.CancellationPending)
-                        {
-                            e.Cancel = true;
-                            break;
-                        }
-
-                        var data = this.Client.DownloadFile(UserName, remotePath, i);
-                        writer.Write(data);
-                        bw.ReportProgress(details.ChunkSize);
-                    }
-                };
-
-                bw.ProgressChanged += (sender, e) =>
-                {
-                    progress.IncrementValue(e.ProgressPercentage);
-                };
-
-                bw.RunWorkerCompleted += (sender, e) =>
-                {
-                    progress.InvokeOnUI(progress.Close);
-                };
-
-                progress.OnCancel += (sender, e) =>
-                {
-                    bw.CancelAsync();
-                };
-
-                bw.WorkerReportsProgress = true;
-                bw.WorkerSupportsCancellation = true;
-                bw.RunWorkerAsync();
-                progress.ShowDialog();
-            }
-        }
-
-        /// <summary>
-        /// Downloads the folder.
-        /// </summary>
-        /// <param name="localPath">The local path.</param>
-        /// <param name="remotePath">The remote path.</param>
-        private void DownloadFolder(string localPath, string remotePath)
-        {
-            if (treeViewHelper.IsSelectedPathDirectory())
-            {
-                var files = treeViewHelper.RecursiveListFiles();
-                var directories = (from f in treeViewHelper.GetUniqueDirectories(files)
-                                    select Path.Combine(localPath, f)).ToList();
-
-                var filteredFiles = (from f in files
-                            where !(directories.Contains(f))
-                            select f).ToList();
-
-                foreach (var directory in directories)
-                {
-                    if (!Directory.Exists(directory))
-                    {
-                        Directory.CreateDirectory(directory);
-                    }
-                }
-
-                int fileDownloadIndex = 0;
-                foreach (var file in filteredFiles)
-                {
-                    var fileLocalPath = Path.Combine(localPath, file);
-                    var fileRemotePath = file;
-
-                    ProgressForm progress = new ProgressForm(String.Format("Downloading {0}/{1}...", fileDownloadIndex, filteredFiles.Count));
-                    var details = this.Client.DownloadDetails(UserName, fileRemotePath);
-                    progress.Filename = Path.GetFileName(fileLocalPath);
-                    progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
-
-                    using (var bw = new BackgroundWorker())
-                    using (var strm = new FileStream(fileLocalPath, FileMode.OpenOrCreate))
-                    using (var writer = new BinaryWriter(strm))
-                    {
-                        bw.DoWork += (sender, e) =>
+                        try
                         {
                             for (int i = 0; i < details.NumberOfChunks; i++)
                             {
@@ -299,42 +238,155 @@ namespace StrongholdClient
                                     break;
                                 }
 
-                                var data = this.Client.DownloadFile(UserName, fileRemotePath, i);
+                                var data = this.Client.DownloadFile(UserName, remotePath, i);
                                 writer.Write(data);
                                 bw.ReportProgress(details.ChunkSize);
                             }
-                        };
-
-                        bw.ProgressChanged += (sender, e) =>
-                        {
-                            progress.IncrementValue(e.ProgressPercentage);
-                        };
-
-                        bw.RunWorkerCompleted += (sender, e) =>
-                        {
-                            progress.InvokeOnUI(progress.Close);
-                        };
-
-                        progress.OnCancel += (sender, e) =>
-                        {
-                            bw.CancelAsync();
-                        };
-
-                        progress.StartPosition = FormStartPosition.CenterParent;
-
-                        bw.WorkerReportsProgress = true;
-                        bw.WorkerSupportsCancellation = true;
-                        bw.RunWorkerAsync();
-
-                        progress.ShowDialog();
-                        if (progress.WasCancelled)
-                        {
-                            break;
                         }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Failure to download file, because: " + ex.Message, "Error");
+                            throw;
+                        }
+                    };
 
-                        fileDownloadIndex++;
+                    bw.ProgressChanged += (sender, e) =>
+                    {
+                        progress.IncrementValue(e.ProgressPercentage);
+                    };
+
+                    bw.RunWorkerCompleted += (sender, e) =>
+                    {
+                        progress.InvokeOnUI(progress.Close);
+                    };
+
+                    progress.OnCancel += (sender, e) =>
+                    {
+                        bw.CancelAsync();
+                    };
+
+                    bw.WorkerReportsProgress = true;
+                    bw.WorkerSupportsCancellation = true;
+                    bw.RunWorkerAsync();
+                    progress.ShowDialog();
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Failure to download file");
+            }
+        }
+
+        /// <summary>
+        /// Downloads the folder.
+        /// </summary>
+        /// <param name="localPath">The local path.</param>
+        /// <param name="remotePath">The remote path.</param>
+        private void DownloadFolder(string localPath, string remotePath)
+        {
+            try
+            {
+                if (treeViewHelper.IsSelectedPathDirectory())
+                {
+                    var selectedFolder = treeViewHelper.GetSelectedPath();
+                    var files = treeViewHelper.RecursiveListFiles(treeDirectory.SelectedNode);
+                    var folders = treeViewHelper.RecursiveListFolders(treeDirectory.SelectedNode);
+                    var localDirectories = (from f in folders
+                                            select Path.Combine(localPath, f.Value)).ToList();
+
+                    // Create the selected node on the user's drive
+                    var localSelectedFolder = Path.Combine(localPath, Path.GetFileNameWithoutExtension(selectedFolder));
+                    if (!Directory.Exists(localSelectedFolder))
+                    {
+                        Directory.CreateDirectory(localSelectedFolder);
+                    }
+
+                    // Create the child directories
+                    foreach (var directory in localDirectories)
+                    {
+                        if (!Directory.Exists(directory))
+                        {
+                            Directory.CreateDirectory(directory);
+                        }
+                    }
+
+                    int fileDownloadIndex = 0;
+                    foreach (var file in files)
+                    {
+                        // Remove the parent directories that the user has not selected
+                        var fileLocalPath = Path.Combine(localPath, file.Value);
+                        var fileRemotePath = file.Key;
+
+                        ProgressForm progress = new ProgressForm(String.Format(
+                            "Downloading {0}/{1}...", fileDownloadIndex, files.Count));
+                        var details = this.Client.DownloadDetails(UserName, fileRemotePath);
+                        progress.Filename = Path.GetFileName(fileLocalPath);
+                        progress.Total = (long)details.NumberOfChunks * (long)details.ChunkSize;
+
+                        using (var bw = new BackgroundWorker())
+                        using (var strm = new FileStream(fileLocalPath, FileMode.OpenOrCreate))
+                        using (var writer = new BinaryWriter(strm))
+                        {
+                            bw.DoWork += (sender, e) =>
+                            {
+                                try
+                                {
+                                    for (int i = 0; i < details.NumberOfChunks; i++)
+                                    {
+                                        // Exit the loop if we're told to cancel
+                                        if (bw.CancellationPending)
+                                        {
+                                            e.Cancel = true;
+                                            break;
+                                        }
+
+                                        var data = this.Client.DownloadFile(UserName, fileRemotePath, i);
+                                        writer.Write(data);
+                                        bw.ReportProgress(details.ChunkSize);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("Failure to download folder, because: " + ex.Message, "Error");
+                                    throw;
+                                }
+                            };
+
+                            bw.ProgressChanged += (sender, e) =>
+                            {
+                                progress.IncrementValue(e.ProgressPercentage);
+                            };
+
+                            bw.RunWorkerCompleted += (sender, e) =>
+                            {
+                                progress.InvokeOnUI(progress.Close);
+                            };
+
+                            progress.OnCancel += (sender, e) =>
+                            {
+                                bw.CancelAsync();
+                            };
+
+                            progress.StartPosition = FormStartPosition.CenterParent;
+
+                            bw.WorkerReportsProgress = true;
+                            bw.WorkerSupportsCancellation = true;
+                            bw.RunWorkerAsync();
+
+                            progress.ShowDialog();
+                            if (progress.WasCancelled)
+                            {
+                                break;
+                            }
+
+                            fileDownloadIndex++;
+                        }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Failure to download folder");
             }
         }
 
@@ -348,10 +400,10 @@ namespace StrongholdClient
         private void btnNewFolder_Click(object sender, EventArgs e)
         {
             var dialog = new NewFolder();
-            dialog.Folder = treeViewHelper.GetPath();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                String folder = dialog.Folder;
+                var selectedFolder = treeViewHelper.GetSelectedPath();
+                String folder = selectedFolder + "\\" + dialog.Folder;
                 try
                 {
                     this.Client.NewFolder(UserName, folder);
@@ -359,7 +411,7 @@ namespace StrongholdClient
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error: " + ex.Message);
+                    MessageBox.Show("Failure to create new folder, because: " + ex.Message, "Error");
                 }
             }
         }
@@ -381,7 +433,7 @@ namespace StrongholdClient
                 foreach (var localPath in dialog.FileNames)
                 {
                     var file = Path.GetFileName(localPath);
-                    var form = new UploadForm(treeViewHelper.GetPath(), file);
+                    var form = new UploadForm(treeViewHelper.GetSelectedPath(), file);
                     if (form.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     {
                         UploadFile(localPath, form.Path);
@@ -397,96 +449,110 @@ namespace StrongholdClient
         /// <param name="remotePath">The remote path.</param>
         private void UploadFile(string localPath, string remotePath)
         {
-            ProgressForm progress = new ProgressForm("Uploading...");
-
-            var length = new FileInfo(localPath).Length;
-
-            // Create the file download chunks and get ready to update the
-            // progress bar
-            progress.Filename = Path.GetFileName(localPath);
-            progress.Total = length;
-            var chunk = MIN_UPLOAD_CHUNK;
             try
             {
-                chunk = this.Client.GetMaxRequestLength() - UPLOAD_HEADER_SIZE;
-            }
-            finally
-            {
-                if (chunk < MIN_UPLOAD_CHUNK)
+                ProgressForm progress = new ProgressForm("Uploading...");
+
+                var length = new FileInfo(localPath).Length;
+
+                // Create the file download chunks and get ready to update the
+                // progress bar
+                progress.Filename = Path.GetFileName(localPath);
+                progress.Total = length;
+                var chunk = MIN_UPLOAD_CHUNK;
+                try
                 {
-                    chunk = MIN_UPLOAD_CHUNK;
+                    chunk = this.Client.GetMaxRequestLength() - UPLOAD_HEADER_SIZE;
                 }
-                else if (chunk > MAX_UPLOAD_CHUNK)
+                finally
                 {
-                    chunk = MAX_UPLOAD_CHUNK;
-                }
-            }
-
-            var count = (int)Math.Ceiling((double)length / (double)chunk);
-
-            if (length < chunk)
-            {
-                chunk = (int)length;
-            }
-
-            using (var bw = new BackgroundWorker())
-            using (var strm = new FileStream(localPath, FileMode.Open))
-            using (var reader = new BinaryReader(strm))
-            {
-                bw.WorkerReportsProgress = true;
-                bw.WorkerSupportsCancellation = true;
-                bw.DoWork += (sender, e) =>
-                {
-
-                    for (int i = 0; i < count; i++)
+                    if (chunk < MIN_UPLOAD_CHUNK)
                     {
-                        // Check if the worker was cancelled
-                        if (bw.CancellationPending)
+                        chunk = MIN_UPLOAD_CHUNK;
+                    }
+                    else if (chunk > MAX_UPLOAD_CHUNK)
+                    {
+                        chunk = MAX_UPLOAD_CHUNK;
+                    }
+                }
+
+                var count = (int)Math.Ceiling((double)length / (double)chunk);
+
+                if (length < chunk)
+                {
+                    chunk = (int)length;
+                }
+
+                using (var bw = new BackgroundWorker())
+                using (var strm = new FileStream(localPath, FileMode.Open))
+                using (var reader = new BinaryReader(strm))
+                {
+                    bw.WorkerReportsProgress = true;
+                    bw.WorkerSupportsCancellation = true;
+                    bw.DoWork += (sender, e) =>
+                    {
+                        try
                         {
-                            e.Cancel = true;
-                            try
+                            for (int i = 0; i < count; i++)
                             {
-                                // Attempt to delete the item on the remote path
-                                this.Client.DeleteItem(this.UserName, remotePath);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("Failure to delete remains of upload, because " + ex.Message);
-                            }
+                                // Check if the worker was cancelled
+                                if (bw.CancellationPending)
+                                {
+                                    e.Cancel = true;
+                                    try
+                                    {
+                                        // Attempt to delete the item on the remote path
+                                        this.Client.DeleteItem(this.UserName, remotePath);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Failure to delete remains of upload, because " + ex.Message);
+                                    }
 
-                            break;
+                                    break;
+                                }
+
+                                var size = i == (count - 1) ? length % chunk : chunk;
+                                var buffer = reader.ReadBytes((int)size);
+                                bool appendToExistingFile = (i > 0);
+                                this.Client.UploadFile(
+                                    this.UserName, remotePath, buffer, appendToExistingFile);
+                                bw.ReportProgress(chunk);
+                            }
                         }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Failure during file download, because: " + ex.Message, "Error");
+                            throw;
+                        }
+                    };
 
-                        var size = i == (count - 1) ? length % chunk : chunk;
-                        var buffer = reader.ReadBytes((int)size);
-                        bool appendToExistingFile = (i > 0);
-                        this.Client.UploadFile(
-                            this.UserName, remotePath, buffer, appendToExistingFile);
-                        bw.ReportProgress(chunk);
-                    }
-                };
-
-                bw.ProgressChanged += (sender, e) =>
-                {
-                    progress.IncrementValue(e.ProgressPercentage);
-                };
-
-                bw.RunWorkerCompleted += (sender, e) =>
-                {
-                    progress.InvokeOnUI(progress.Close);
-                    if (!e.Cancelled)
+                    bw.ProgressChanged += (sender, e) =>
                     {
-                        this.RefreshFileDirectory();
-                    }
-                };
+                        progress.IncrementValue(e.ProgressPercentage);
+                    };
 
-                progress.OnCancel += (sender, e) =>
-                {
-                    bw.CancelAsync();
-                };
+                    bw.RunWorkerCompleted += (sender, e) =>
+                    {
+                        progress.InvokeOnUI(progress.Close);
+                        if (!e.Cancelled)
+                        {
+                            this.RefreshFileDirectory();
+                        }
+                    };
 
-                bw.RunWorkerAsync();
-                progress.ShowDialog();
+                    progress.OnCancel += (sender, e) =>
+                    {
+                        bw.CancelAsync();
+                    };
+
+                    bw.RunWorkerAsync();
+                    progress.ShowDialog();
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Failure to upload file");
             }
         }
 
@@ -499,7 +565,7 @@ namespace StrongholdClient
         /// </param>
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            var dialog = new DeleteItemForm(treeViewHelper.GetPath());
+            var dialog = new DeleteItemForm(treeViewHelper.GetSelectedPath());
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 var folder = dialog.Path;
