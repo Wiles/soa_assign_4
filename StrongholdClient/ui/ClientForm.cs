@@ -512,7 +512,7 @@ namespace StrongholdClient
                                     break;
                                 }
 
-                                var size = i == (count - 1) ? length % chunk : chunk;
+                                var size = chunk;
                                 var buffer = reader.ReadBytes((int)size);
                                 bool appendToExistingFile = (i > 0);
                                 this.Client.UploadFile(
